@@ -52,8 +52,11 @@ def main():
     
     byte = dev.read( 0x81, packet_len, 100 )
     show_result( byte )
-    print byte[1] & 0x4100
 
+
+    ep.write( '010D\r' );
+    byte = dev.read( 0x81, packet_len, 100 )
+    show_result( byte )
 
 if __name__ == '__main__':
     main()
