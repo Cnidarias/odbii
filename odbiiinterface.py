@@ -24,9 +24,28 @@ def main():
 
     # Set active configuration - Remember to check with lsusb -v -d vendorID:
 
+    # this is basically lsusb -v 
+    print dev
+
     dev.set_configuration( 1 )
 
 
+    cfg = dev.get_active_configuration()
+    intf = cfg[(0,0)]
+    ep = usb.util.find_descriptor( 
+            intf,
+            # math first OUT endpoint
+            custom_match = \
+                    lambda e: \
+                    usb.util.endpoint_direction( e.bEndpointAddress ) == \
+                    usb.util.ENDPOINT_OUT )
+    if ep is None:
+        raise ValueError( 'No ENDPOINT_OUT found' )
+
+    ep.write( '03\r' );
+    
+    byte = dev.read( 0x81, packet_len, 100 )
+    print byte
 
 
 if __name__ == '__main__':
