@@ -8,7 +8,13 @@ import usb.util
 packet_len = 64
 
 
+def show_result(bytes):
+        sys.stdout.write( "Result:" )
+        sys.stdout.write( ''.join( ['%s ' % hex(abyte) for abyte in bytes] ) )
+        sys.stdout.write( '\n' )
+
 # add function protokols here
+
 
 def main():
 
@@ -45,7 +51,8 @@ def main():
     ep.write( '03\r' );
     
     byte = dev.read( 0x81, packet_len, 100 )
-    print byte
+    show_result( byte )
+    print byte[1] & 0x4100
 
 
 if __name__ == '__main__':
