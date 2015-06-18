@@ -49,7 +49,6 @@ def main():
         raise ValueError( 'No ENDPOINT_OUT found' )
 
     ep.write( '03\r' );
-    
     byte = dev.read( 0x81, packet_len, 100 )
     show_result( byte )
 
@@ -57,6 +56,12 @@ def main():
     ep.write( '010D\r' );
     byte = dev.read( 0x81, packet_len, 100 )
     show_result( byte )
+    
+    ep.write( 'AT Z\r' );
+    byte = dev.read( 0x81, packet_len, 100 )
+    print byte
+    show_result( byte )
+
 
 if __name__ == '__main__':
     main()
