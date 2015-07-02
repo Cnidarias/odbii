@@ -10,7 +10,7 @@ packet_len = 64
 
 def show_result(bytes):
         sys.stdout.write( "Result:" )
-        sys.stdout.write( ''.join( ['%s ' % hex(abyte) for abyte in bytes] ) )
+        sys.stdout.write( ''.join( ['%d ' % abyte for abyte in bytes] ) )
         sys.stdout.write( '\n' )
 
 # add function protokols here
