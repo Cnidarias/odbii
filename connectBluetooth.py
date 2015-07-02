@@ -37,20 +37,21 @@ def connectToDevice():
     global sock
     global port
     global target_addr
-    try:
-        sock = bluetooth.BluetoothSocket( bluetooth.RFCOMM )
-        sock.connect( (target_addr,port ) )
-        print "Connected - Now trying to read GPS data!"
-        readPacket()
-    except bluetooth.btcommon.BluetoothError as e:
-        print e
-        if e[0] == 112:
-            print "Seems like your BT is not enabled!"
-        if e[0] == 111:
-            print "Seems like BlueNMEA is not enabled/functioning correctly please re/start it!"
-        time.sleep( 5 )
-        connectToDevice()
-                
+    while True:
+        try:
+            sock = bluetooth.BluetoothSocket( bluetooth.RFCOMM )
+            sock.connect( (target_addr,port ) )
+            print "Connected - Now trying to read GPS data!"
+            readPacket()
+            break
+        except bluetooth.btcommon.BluetoothError as e:
+            print e
+            if '112' in e:
+                print "Seems like your BT is not enabled!"
+            if '111' in e:
+                print "Seems like BlueNMEA is not enabled/functioning correctly please re/start it!"
+            time.sleep( 5 )
+                    
 
 def convertGooglePolyLine( line ):
     index = 0
@@ -94,7 +95,7 @@ def convertGooglePolyLine( line ):
             lng += result >> 1
 
 
-        print lat / 100000.0 , lng / 100000.0
+        print "{0:.5f}".format( lat / 100000.0 ), "{0:.5f}".format( lng / 100000.0 )
 
 
 
@@ -115,10 +116,3 @@ convertGooglePolyLine( "}nmrHekip@?A@A?A@A?A?A@A?A?A?A?A?A@C?A?A?AAA?A?A?A?AAA?A
 print "\n\n\n"
 
 connectToDevice()
-
-
-
-
-
-
-
