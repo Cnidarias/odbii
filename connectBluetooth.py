@@ -1,6 +1,8 @@
+import requests
 import sys
 import time
 import bluetooth
+import json
 from pprint import pprint 
 
 def readPacket():
@@ -46,10 +48,6 @@ def connectToDevice():
             break
         except bluetooth.btcommon.BluetoothError as e:
             print e
-            if '112' in e:
-                print "Seems like your BT is not enabled!"
-            if '111' in e:
-                print "Seems like BlueNMEA is not enabled/functioning correctly please re/start it!"
             time.sleep( 5 )
                     
 
@@ -106,6 +104,17 @@ sock = None
 target_addr = "90:68:C3:82:78:78"
 port = 5
 
+
+key = "AIzaSyDm9D-7KoKnVU6M-xp8XQhpUPwZ02OiGPw"
+destination = "Koblenz"
+
+
+
+r = requests.get( "https://maps.googleapis.com/maps/api/directions/json?origin=50+22.6013N+008+03.7237E&destination="+ destination+"&key=" +key)
+
+
+obj = json.loads( r.text )
+pprint( obj )
 
 print "\n\n\n"
 convertGooglePolyLine( "_p~iF~ps|U_ulLnnqC_mqNvxq`@" )
