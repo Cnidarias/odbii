@@ -1,3 +1,4 @@
+import os
 import serial
 import time
 import struct
@@ -153,12 +154,20 @@ def humanReadAbleABVals( array ):
     index = i * 3
     a = array[index + 1]
     b = array[index + 2]
-    if array[index] == 1: message += "RPM " + str( 0.2 * a * b ) + "\t"
-    elif array[index] == 5: message += "deg C " + str( a * ( b - 100 ) * 0.1 ) + "\t"
-    elif array[index] == 7: message += "km/h " + str( 0.01 * a * b ) + "\t"
-    elif array[index] == 21: message += "V " + str( 0.001 * a * b ) + "\t"
-    elif array[index] == 22: message += "??? " + str( 0.001 * a * b ) + "\t"
-    elif array[index] == 35: message += "l/h " + str( 0.01 * a * b ) + "\t"
+    if array[index] == 1: 
+      message += "RPM " + str( 0.2 * a * b ) + "\t"
+      os.putenv('pythonRPM', str( 0.2 * a * b ) )
+    elif array[index] == 5: 
+      message += "deg C " + str( a * ( b - 100 ) * 0.1 ) + "\t"
+    elif array[index] == 7: 
+      message += "km/h " + str( 0.01 * a * b ) + "\t"
+      os.putenv('pythonKMH', str( 0.01 * a * b ) )
+    elif array[index] == 21: 
+      message += "V " + str( 0.001 * a * b ) + "\t"
+    elif array[index] == 22: 
+      message += "??? " + str( 0.001 * a * b ) + "\t"
+    elif array[index] == 35: 
+      message += "l/h " + str( 0.01 * a * b ) + "\t"
     #message += str( array[index] ) + '\t'
     i += 1
 
