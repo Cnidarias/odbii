@@ -151,10 +151,11 @@ def humanReadAbleABVals( array ):
   i = 0
   while i < 4:
     index = i * 3
-    if array[index] == 1: message += "RPM " + str( 0.2 * array[index + 1] * array[index + 2] ) + "\t"
-    elif array[index] == 22: message += "??? " + str( 0.001 * array[index + 1] * array[index + 2] ) + "\t"
-    elif array[index] == 7: message += "km/h " + str( 0.01 * array[index + 1] * array[index + 2] ) + "\t"
-    elif array[index] == 35: message += "l/h " + str( 0.01 * array[index + 1] * array[index + 2] ) + "\t"
+    #if array[index] == 1: message += "RPM " + str( 0.2 * array[index + 1] * array[index + 2] ) + "\t"
+    #elif array[index] == 22: message += "??? " + str( 0.001 * array[index + 1] * array[index + 2] ) + "\t"
+    #elif array[index] == 7: message += "km/h " + str( 0.01 * array[index + 1] * array[index + 2] ) + "\t"
+    #elif array[index] == 35: message += "l/h " + str( 0.01 * array[index + 1] * array[index + 2] ) + "\t"
+    message += str( array[index] )
     i += 1
 
   return message
@@ -236,11 +237,13 @@ def openECU():
   # NOW we have handeled basic communication -
   # We now send ACK commands back and forth - forever
 
-  while True:
-    print readBlock()
+  tester = 1
+  while tester <= 255:
+    print tester, readBlock()
     sendACKBlock()
     print readBlock()
-    requestDataBlock( 0x0b )
+    requestDataBlock( tester )
+    tester += 1
 
 
 
