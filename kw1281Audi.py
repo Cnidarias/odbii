@@ -35,21 +35,130 @@ def sendACKBlock():
   packet = ser.read( 1 )
   
   packet = ser.read( 1 ) # should be 0x03 kompliment
-  print hex( ord( packet ) )
 
   ser.write( chr( packetCounter ) )
   packet = ser.read( 1 )
   packet = ser.read( 1 ) # should be packetCounter kompliment
-  print hex( ord( packet ) )
 
   ser.write( '\x09' ) # this is the block command
   packet = ser.read( 1 )
   packet = ser.read( 1 ) # should be the 0x09 kompliment
-  print hex( ord( packet ) )
 
   ser.write( '\x03' )
   packet = ser.read( 1 )
 
+
+def requestDataBlock( block ):
+  global ser
+  global packetCounter
+
+  if packetCounter == 0xff:
+    packetCounter = 0
+  else:
+    packetCounter += 1
+
+  ser.write( '\x04' )
+  packet = ser.read( 1 )
+
+  packet = ser.read( 1 ) # this is the 0x04 kompliment
+
+  ser.write( chr( packetCounter ) )
+  packet = ser.read( 1 )
+
+  packet = ser.read( 1 ) # this is the kompliment of the packetCounter
+
+  ser.write( '\x29' ) # this is the command for a grp reading
+  packet = ser.read( 1 )
+
+  packet = ser.read( 1 ) # this is the compliment of 0x29
+
+  # now send the grp ID number --
+  ser.write( chr( block ) )
+  packet = ser.read( 1 )
+
+  packet = ser.read( 1 ) # should be compliment - yet again
+
+  ser.write( '\x03' )
+  packet = ser.read( 1 )
+
+
+
+
+
+
+
+
+def readBlock():
+  global ser
+  global packetCounter
+
+  #################################################
+  packet = ser.read( 1 )
+  messageLen = ord( packet )
+  ser.write( bitFlip( messageLen ) )
+  packet = ser.read( 1 )
+
+  packet = ser.read( 1 )
+  packetCounter = ord( packet )
+  ser.write( bitFlip( packetCounter ) )
+  packet = ser.read( 1 )
+
+  packet = ser.read( 1 )
+  blockTitle = ord( packet )
+  ser.write( bitFlip( blockTitle ) )
+  packet = ser.read( 1 )
+
+  if blockTitle == 0xf6:
+    i = 3
+    message = ""
+
+    while i < messageLen:
+      packet = ser.read( 1 )
+      message += packet
+
+      ser.write( bitFlip( ord( packet ) ) )
+      packet = ser.read( 1 )
+      i += 1
+    
+    packet = ser.read( 1 ) # read 0x03 end block 
+    return message
+  
+  elif blockTitle == 0x09:
+    packet = ser.read( 1 )
+    return ""
+
+  elif blockTitle == 0xe7:
+    i = 3
+    result = []
+    index = 0
+
+    while i < messageLen:
+      packet = ser.read( 1 )
+      result.append( ord( packet ) )
+      ser.write( bitFlip( ord( packet ) ) )
+      packet = ser.read( 1 )
+      i += 1
+      index += 1
+      
+    packet = ser.read( 1 ) # read 0x03 end block 
+    return humanReadAbleABVals(result)
+  
+  ####################################################
+ 
+
+def humanReadAbleABVals( array ):
+  message = ""
+  i = 0
+  while i < 4:
+    index = i * 3
+    if array[index] == 1: message += "RPM " + str( 0.2 * array[index + 1] * array[index + 2] ) + "\t"
+    elif array[index] == 22: message += "??? " + str( 0.001 * array[index + 1] * array[index + 2] ) + "\t"
+    elif array[index] == 7: message += "km/h " + str( 0.01 * array[index + 1] * array[index + 2] ) + "\t"
+    elif array[index] == 35: message += "l/h " + str( 0.01 * array[index + 1] * array[index + 2] ) + "\t"
+    i += 1
+
+  return message
+    
 
   
 
@@ -108,39 +217,30 @@ def openECU():
   ser.write( bitFlip( ord( packet ) ) )
   packet = ser.read( 1 ) # always throws same packet back at us
 
-
-  packet = ser.read( 1 )
-  messageLen = ord( packet )
-  ser.write( bitFlip( messageLen ) )
-  packet = ser.read( 1 )
-
-  packet = ser.read( 1 )
-  packetCounter = ord( packet )
-  ser.write( bitFlip( packetCounter ) )
-  packet = ser.read( 1 )
-
-  packet = ser.read( 1 )
-  ser.write( bitFlip( ord( packet ) ) )
-  packet = ser.read( 1 )
-
-
-  i = 3
-  message = ""
-
-  while i < messageLen:
-    packet = ser.read( 1 )
-    message += packet
-
-    ser.write( bitFlip( ord( packet ) ) )
-    packet = ser.read( 1 )
-    i += 1
-  
-
+  message = readBlock()
   print "VAG-Nummer:", message
-
-  packet = ser.read( 1 ) # read 0x03 end block 
-
   sendACKBlock() # send ack block confimration
+  
+  message = readBlock()
+  print "Engine:", message
+  sendACKBlock()
+
+  message = readBlock()
+  print "Software Coding:", message
+  sendACKBlock()
+
+  message = readBlock()
+  print "Type:", message
+  sendACKBlock()
+
+  # NOW we have handeled basic communication -
+  # We now send ACK commands back and forth - forever
+
+  while True:
+    print readBlock()
+    sendACKBlock()
+    print readBlock()
+    requestDataBlock( 0x0b )
 
 
 
