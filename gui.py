@@ -1,3 +1,4 @@
+import time
 import os
 import subprocess
 from multiprocessing.connection import Listener
@@ -24,6 +25,9 @@ while True:
     print msg
     if msg == 'close':
         conn.close()
-        break
+
+        kw = subprocess.Popen( ["python", "kw1281Audi.py"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False )
+        conn = listener.accept()
+
 
 listener.close()

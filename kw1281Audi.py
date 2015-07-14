@@ -276,17 +276,26 @@ def openECU():
 
 #############################################################################
 def main():
+    conn = None
+    ser = None
     address = ( 'localhost', 6000 )
     # First we open the Serial
-    conn = Client( address, authkey='kw1281Audipass' ) 
-    ser = serial.Serial( '/dev/ttyUSB0', 9600 , timeout = 1, rtscts = 1, dsrdtr = 1 )
-    packetCounter = 0
-    openECU()
+    try:
+        conn = Client( address, authkey='kw1281Audipass' ) 
+        ser = serial.Serial( '/dev/ttyUSB0', 9600 , timeout = 1, rtscts = 1, dsrdtr = 1 )
+        packetCounter = 0
+        openECU()
+    except:
+        print "THIS IS AN ERROR SO THIS WORKS \n\n\n\n\nError", sys.exc_info()[0]
+        if conn is not None:
+            conn.send( 'Error' )
+            conn.send( sys.exc_info()[0] )
+            conn.send( 'close' )
+            conn.close()
+        if ser is not None:
+            ser.close()
 
-    conn.send( 'Error' )
-    conn.close()
-    ser.close()
-    sys.exit( 0 )
+        raise
 
 
 if __name__ == "__main__":
