@@ -1,13 +1,29 @@
 import os
 import subprocess
+from multiprocessing.connection import Listener
 
 
 kw = subprocess.Popen( ["python", "kw1281Audi.py"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False )
 
 
+
+
 print kw
 
+
+
+address = ( 'localhost', 6000 )
+listener = Listener( address, authkey="kw1281Audipass" )
+conn = listener.accept()
+
+print "connection accepted from", listener.last_accepted
+
 while True:
-  print kw.pid
-  print "RPM", os.getenv('pythonRPM', "n/a")
-  print "KMH", os.getenv('pythonKMH', "n/a")
+    msg = conn.recv()
+
+    print msg
+    if msg == 'close':
+        conn.close()
+        break
+
+listener.close()
