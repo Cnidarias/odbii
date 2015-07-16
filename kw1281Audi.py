@@ -126,7 +126,7 @@ def readBlock():
         return message
 
     elif blockTitle == 0x09:
-        packet = ser.read( 1 )
+        packet = ser.read( 1 ) # read 0x03 end block 
         return ""
 
     elif blockTitle == 0xe7:
@@ -179,7 +179,6 @@ def humanReadAbleABVals( array ):
 
 
 def openECU():
-    print "OPEN ECU REACHED"
     global ser
     global packetCounter
 
@@ -286,7 +285,6 @@ def main():
         packetCounter = 0
         openECU()
     except:
-        print "THIS IS AN ERROR SO THIS WORKS \n\n\n\n\nError", sys.exc_info()[0]
         if conn is not None:
             conn.send( 'Error' )
             conn.send( sys.exc_info()[0] )
@@ -294,7 +292,6 @@ def main():
             conn.close()
         if ser is not None:
             ser.close()
-
         raise
 
 
