@@ -58,6 +58,7 @@ class GUI( qt.QWidget ):
         self.initUI()
 
 
+
     def initUI( self ):
         self.setGeometry( 0, 0, 1024, 600 )
         self.setWindowTitle( 'Board Computer' )
@@ -74,6 +75,8 @@ class GUI( qt.QWidget ):
         self.timer.setInterval( 10 )
         self.timer.timeout.connect( self.custUpdate )
         self.timer.start()
+
+
 
     def custUpdate( self ):
         self.timeCounter += 1
@@ -129,9 +132,11 @@ class GUI( qt.QWidget ):
         paint.end()
 
 
+
     def drawCircle( self, paint, xCenter, yCenter, xRad, yRad, color = qt.QColor( 255, 255, 255 ) ):
         paint.setBrush( qt.QBrush( color ) )
         paint.drawEllipse( xCenter - xRad / 2 , yCenter - yRad / 2, xRad, yRad )
+
 
 
     def addGraphs( self ):
