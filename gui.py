@@ -11,6 +11,8 @@ from PyQt4 import QtCore as qtc
 import pyqtgraph as pg
 
 
+from client import tester
+
 #kw = subprocess.Popen( ["python", "kw1281Audi.py"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False )
 #
 #
@@ -40,15 +42,16 @@ import pyqtgraph as pg
 
 
 class GUI( qt.QWidget ):
-    def __init__( self ):
+    def __init__( self, data ):
         super( GUI, self ).__init__()
-        self.RPM = 2000
+
+        self.data = data
+
         self.RPMplot = None
         self.RPMData = []
         self.RPMtext = None
         self.RPMAxisMover = 0
 
-        self.SPEED = 25
         self.SPEEDplot = None
         self.SPEEDtext = None
         self.SPEEDData = []
@@ -81,24 +84,18 @@ class GUI( qt.QWidget ):
     def custUpdate( self ):
         self.timeCounter += 1
 
-        self.RPM += random.randint( -100 , 100 )
-        self.SPEED += random.randint( -5, 5 )
-        if self.RPM < 0: self.RPM = 0
-        if self.SPEED < 0: self.SPEED = 0
 
-
-        self.RPMtext.setText( str(self.RPM) )
-        self.SPEEDtext.setText( str( self.SPEED ) )
-
+        self.RPMtext.setText( str(self.data['rpm']) )
+        self.SPEEDtext.setText( str( self.data['speed'] ) )
 
         if self.timeCounter == 50:
             self.timeCounter = 0
             if len( self.RPMData ) < 120:
-                self.RPMData.append( self.RPM )
+                self.RPMData.append( self.data['rpm'])
             else:
                 self.RPMAxisMover += 1
                 self.RPMData[:-1] = self.RPMData[1:]
-                self.RPMData[-1] = self.RPM
+                self.RPMData[-1] = self.data['rpm']
                 self.RPMplot.setPos( self.RPMAxisMover, 0 )
                 self.RPMplot.setData( self.RPMData )
                 self.RPMplot.setData( self.RPMData )
@@ -107,11 +104,11 @@ class GUI( qt.QWidget ):
 
 
             if len( self.SPEEDData ) < 120:
-               self.SPEEDData.append( self.SPEED )
+               self.SPEEDData.append( self.data['speed'])
             else:
                 self.SPEEDAxisMover += 1
                 self.SPEEDData[:-1] = self.SPEEDData[1:]
-                self.SPEEDData[-1] = self.SPEED
+                self.SPEEDData[-1] = self.data['speed']
                 self.SPEEDplot.setPos( self.SPEEDAxisMover, 0 )
                 self.SPEEDplot.setData( self.SPEEDData )
                 self.SPEEDplot.setData( self.SPEEDData )
@@ -191,8 +188,12 @@ class GUI( qt.QWidget ):
 
 
 def main():
+    data = { 'speed' : 25, 'rpm' : 2000 }
     app = qt.QApplication( [] )
-    w = GUI()
+    w = GUI( data )
+    task = tester( data )
+    task.daemon = True
+    task.start()
     sys.exit( app.exec_() )
 
 
