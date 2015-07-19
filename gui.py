@@ -11,7 +11,7 @@ import pyqtgraph as pg
 
 
 from client import tester
-import kw1281
+import kw1281Audi
 
 
 class GUI( qt.QWidget ):
@@ -45,8 +45,7 @@ class GUI( qt.QWidget ):
         self.addTextLabels()
         self.show()
 
-        #### self.showFullScreen() ####
-
+        self.showFullScreen() ###
         self.timer = qtc.QTimer( self )
         self.timer.setInterval( 10 )
         self.timer.timeout.connect( self.custUpdate )
@@ -165,7 +164,7 @@ def main():
     data = { 'speed' : 25, 'rpm' : 2000 }
     app = qt.QApplication( [] )
     w = GUI( data )
-    task = kw1281( data )
+    task = kw1281Audi.kw1281( data )
     task.daemon = True
     task.start()
     sys.exit( app.exec_() )

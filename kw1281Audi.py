@@ -12,9 +12,11 @@ class kw1281( threading.Thread ):
     self.ser = None
     address = ( 'localhost', 6000 )
     self.data = data
-    # First we open the Serial
+
+
+  def run( self ):
     try:
-        self.ser = self.serial.Serial( '/dev/ttyUSB0', 9600 , timeout = 1, rtscts = 1, dsrdtr = 1 )
+        self.ser = serial.Serial( '/dev/ttyUSB0', 9600 , timeout = 1, rtscts = 1, dsrdtr = 1 )
         self.packetCounter = 0
         self.openECU()
     except:
@@ -23,7 +25,7 @@ class kw1281( threading.Thread ):
         raise
 
 
-  def bitFlip( n ):
+  def bitFlip( self, n ):
       return chr( 0xff ^ n )
   
   
@@ -99,17 +101,17 @@ class kw1281( threading.Thread ):
       #################################################
       packet = self.ser.read( 1 )
       messageLen = ord( packet )
-      self.ser.write( bitFlip( messageLen ) )
+      self.ser.write( self.bitFlip( messageLen ) )
       packet = self.ser.read( 1 )
   
       packet = self.ser.read( 1 )
       self.packetCounter = ord( packet )
-      self.ser.write( bitFlip( self.packetCounter ) )
+      self.ser.write(self.bitFlip( self.packetCounter ) )
       packet = self.ser.read( 1 )
   
       packet = self.ser.read( 1 )
       blockTitle = ord( packet )
-      self.ser.write( bitFlip( blockTitle ) )
+      self.ser.write( self.bitFlip( blockTitle ) )
       packet = self.ser.read( 1 )
   
       if blockTitle == 0xf6:
@@ -120,7 +122,7 @@ class kw1281( threading.Thread ):
               packet = self.ser.read( 1 )
               message += packet
   
-              self.ser.write( bitFlip( ord( packet ) ) )
+              self.ser.write( self.bitFlip( ord( packet ) ) )
               packet = self.ser.read( 1 )
               i += 1
   
@@ -137,7 +139,7 @@ class kw1281( threading.Thread ):
           while i < messageLen:
               packet = self.ser.read( 1 )
               result.append( ord( packet ) )
-              self.ser.write( bitFlip( ord( packet ) ) )
+              self.ser.write( self.bitFlip( ord( packet ) ) )
               packet = self.ser.read( 1 )
               i += 1
   
@@ -161,7 +163,7 @@ class kw1281( threading.Thread ):
               message += "deg C " + str( a * ( b - 100 ) * 0.1 ) + "\t"
           elif array[index] == 7: 
               message += "km/h " + str( 0.01 * a * b ) + "\t"
-              self.data['seed'] = 0.01 * a * b
+              self.data['speed'] = 0.01 * a * b
           elif array[index] == 21: 
               message += "V " + str( 0.001 * a * b ) + "\t"
           elif array[index] == 22: 
@@ -171,6 +173,7 @@ class kw1281( threading.Thread ):
             #message += str( array[index] ) + '\t'
           i += 1
   
+      print self.data
       return message
   
   
@@ -226,7 +229,7 @@ class kw1281( threading.Thread ):
   
       packet = self.ser.read( 1 ) 
   
-      self.ser.write( bitFlip( ord( packet ) ) )
+      self.ser.write( self.bitFlip( ord( packet ) ) )
       packet = self.ser.read( 1 ) # always throws same packet back at us
   
       message = self.readBlock()
@@ -272,7 +275,8 @@ class kw1281( threading.Thread ):
 
 #############################################################################
 def main():
-  kw1281()
+  data = {'speed' : 200, 'rpm': 2000}
+  kw1281( data )
    
 if __name__ == "__main__":
     main()
