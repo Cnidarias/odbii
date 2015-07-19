@@ -3,26 +3,21 @@ import serial
 import time
 import struct
 import sys
-from multiprocessing.connection import Client
+import threading
 
 
-class kw1281():
-  def __init__ (self):
-    self.conn = None
+class kw1281( threading.Thread ):
+  def __init__ ( self, data ):
+    threading.Thread.__init__( self )
     self.ser = None
     address = ( 'localhost', 6000 )
+    self.data = data
     # First we open the Serial
     try:
-        self.conn = Client( address, authkey='kw1281Audipass' ) 
         self.ser = self.serial.Serial( '/dev/ttyUSB0', 9600 , timeout = 1, rtscts = 1, dsrdtr = 1 )
         self.packetCounter = 0
         self.openECU()
     except:
-        if self.conn is not None:
-            self.conn.send( 'Error' )
-            self.conn.send( sys.exc_info()[0] )
-            self.conn.send( 'close' )
-            self.conn.close()
         if self.ser is not None:
             self.ser.close()
         raise
@@ -161,21 +156,18 @@ class kw1281():
           b = array[index + 2]
           if array[index] == 1: 
               message += "RPM " + str( 0.2 * a * b ) + "\t"
-              self.conn.send( ['RPM', 0.2*a*b] )
+              self.data['rpm'] = 0.2 * a * b
           elif array[index] == 5: 
               message += "deg C " + str( a * ( b - 100 ) * 0.1 ) + "\t"
-              self.conn.send( ['TMP', a * ( b - 100 ) * 0.1] )
           elif array[index] == 7: 
               message += "km/h " + str( 0.01 * a * b ) + "\t"
-              self.conn.send( ['SPEED', 0.01*a*b] )
+              self.data['seed'] = 0.01 * a * b
           elif array[index] == 21: 
               message += "V " + str( 0.001 * a * b ) + "\t"
-              self.conn.send( ['V', 0.001*a*b] )
           elif array[index] == 22: 
               message += "??? " + str( 0.001 * a * b ) + "\t"
           elif array[index] == 35: 
               message += "l/h " + str( 0.01 * a * b ) + "\t"
-              self.conn.send( ['LH', 0.001*a*b] )
             #message += str( array[index] ) + '\t'
           i += 1
   
