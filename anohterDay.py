@@ -13,6 +13,7 @@ def main():
     app = QtGui.QApplication( [] )
     customView = QCustomWebView()
     customView.resize( 1024, 600 )
+    #customView.showFullScreen()
     customView.show()
     sys.exit( app.exec_() )
 

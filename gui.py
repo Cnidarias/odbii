@@ -75,45 +75,42 @@ class GUI( qt.QWidget ):
         #### self.showFullScreen() ####
 
         self.timer = qtc.QTimer( self )
-        self.timer.setInterval( 10 )
+        self.timer.setInterval( 200 )
         self.timer.timeout.connect( self.custUpdate )
         self.timer.start()
 
 
 
     def custUpdate( self ):
-        self.timeCounter += 1
 
 
         self.RPMtext.setText( str(self.data['rpm']) )
         self.SPEEDtext.setText( str( self.data['speed'] ) )
 
-        if self.timeCounter == 50:
-            self.timeCounter = 0
-            if len( self.RPMData ) < 120:
-                self.RPMData.append( self.data['rpm'])
-            else:
-                self.RPMAxisMover += 1
-                self.RPMData[:-1] = self.RPMData[1:]
-                self.RPMData[-1] = self.data['rpm']
-                self.RPMplot.setPos( self.RPMAxisMover, 0 )
-                self.RPMplot.setData( self.RPMData )
-                self.RPMplot.setData( self.RPMData )
-
+        if len( self.RPMData ) < 120:
+            self.RPMData.append( self.data['rpm'])
+        else:
+            self.RPMAxisMover += 1
+            self.RPMData[:-1] = self.RPMData[1:]
+            self.RPMData[-1] = self.data['rpm']
+            self.RPMplot.setPos( self.RPMAxisMover, 0 )
+            self.RPMplot.setData( self.RPMData )
             self.RPMplot.setData( self.RPMData )
 
+        self.RPMplot.setData( self.RPMData )
 
-            if len( self.SPEEDData ) < 120:
-               self.SPEEDData.append( self.data['speed'])
-            else:
-                self.SPEEDAxisMover += 1
-                self.SPEEDData[:-1] = self.SPEEDData[1:]
-                self.SPEEDData[-1] = self.data['speed']
-                self.SPEEDplot.setPos( self.SPEEDAxisMover, 0 )
-                self.SPEEDplot.setData( self.SPEEDData )
-                self.SPEEDplot.setData( self.SPEEDData )
 
+        if len( self.SPEEDData ) < 120:
+           self.SPEEDData.append( self.data['speed'])
+        else:
+            self.SPEEDAxisMover += 1
+            self.SPEEDData[:-1] = self.SPEEDData[1:]
+            self.SPEEDData[-1] = self.data['speed']
+            self.SPEEDplot.setPos( self.SPEEDAxisMover, 0 )
             self.SPEEDplot.setData( self.SPEEDData )
+            self.SPEEDplot.setData( self.SPEEDData )
+
+        self.SPEEDplot.setData( self.SPEEDData )
 
 
 
