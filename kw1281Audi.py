@@ -18,7 +18,7 @@ class kw1281( threading.Thread ):
     try:
         self.ser = serial.Serial( '/dev/ttyUSB0', 9600 , timeout = 1, rtscts = 1, dsrdtr = 1 )
         self.packetCounter = 0
-        self.openECU()
+        self.openECU( 0x17 )  # Open DASHBOARD BABY
     except:
         if self.ser is not None:
             self.ser.close()
@@ -131,7 +131,7 @@ class kw1281( threading.Thread ):
   
       elif blockTitle == 0x09:
           packet = self.ser.read( 1 ) # read 0x03 end block 
-          return ""
+          return "ACK"
   
       elif blockTitle == 0xe7:
           i = 3
@@ -180,11 +180,11 @@ class kw1281( threading.Thread ):
   
   
   
-  def openECU( self ):
+  def openECU( self, address = 0x01 ):
   
-      address = 0x01
       delay = 0.2
   
+      # For ECU Address 0x01:
       # need to send 0 1000 000 0 1
       # first 0 is start bit 
       # then we have the address 0x01 - but LSB first
@@ -233,21 +233,17 @@ class kw1281( threading.Thread ):
       packet = self.ser.read( 1 ) # always throws same packet back at us
   
       message = self.readBlock()
-      print "VAG-Nummer:", message
-      self.sendACKBlock() # self.send ack block confimration
+
+      # Keep on reading String messages that the ECU sends us, until
+      # it is finally done telling us who it is
+      # then simply send another ACK block and start reading data - easy
+      while message is not "ACK":
+        print message
+        self.sendACKBlock() # self.send ack block confimration
+        message = self.readBlock()
   
-      message = self.readBlock()
-      print "Engine:", message
       self.sendACKBlock()
-  
-      message = self.readBlock()
-      print "Software Coding:", message
-      self.sendACKBlock()
-  
-      message = self.readBlock()
-      print "Type:", message
-      self.sendACKBlock()
-  
+
       # NOW we have handeled basic communication -
       # We now self.send ACK commands back and forth - forever
   
