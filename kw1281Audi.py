@@ -3,32 +3,29 @@ import serial
 import time
 import struct
 import sys
-from multiprocessing.connection import Client
+import threading
 
 
-class kw1281():
-  def __init__ (self):
-    self.conn = None
+class kw1281( threading.Thread ):
+  def __init__ ( self, data ):
+    threading.Thread.__init__( self )
     self.ser = None
     address = ( 'localhost', 6000 )
-    # First we open the Serial
+    self.data = data
+
+
+  def run( self ):
     try:
-        self.conn = Client( address, authkey='kw1281Audipass' ) 
-        self.ser = self.serial.Serial( '/dev/ttyUSB0', 9600 , timeout = 1, rtscts = 1, dsrdtr = 1 )
+        self.ser = serial.Serial( '/dev/ttyUSB0', 9600 , timeout = 1, rtscts = 1, dsrdtr = 1 )
         self.packetCounter = 0
         self.openECU()
     except:
-        if self.conn is not None:
-            self.conn.send( 'Error' )
-            self.conn.send( sys.exc_info()[0] )
-            self.conn.send( 'close' )
-            self.conn.close()
         if self.ser is not None:
             self.ser.close()
         raise
 
 
-  def bitFlip( n ):
+  def bitFlip( self, n ):
       return chr( 0xff ^ n )
   
   
@@ -104,17 +101,17 @@ class kw1281():
       #################################################
       packet = self.ser.read( 1 )
       messageLen = ord( packet )
-      self.ser.write( bitFlip( messageLen ) )
+      self.ser.write( self.bitFlip( messageLen ) )
       packet = self.ser.read( 1 )
   
       packet = self.ser.read( 1 )
       self.packetCounter = ord( packet )
-      self.ser.write( bitFlip( self.packetCounter ) )
+      self.ser.write(self.bitFlip( self.packetCounter ) )
       packet = self.ser.read( 1 )
   
       packet = self.ser.read( 1 )
       blockTitle = ord( packet )
-      self.ser.write( bitFlip( blockTitle ) )
+      self.ser.write( self.bitFlip( blockTitle ) )
       packet = self.ser.read( 1 )
   
       if blockTitle == 0xf6:
@@ -125,7 +122,7 @@ class kw1281():
               packet = self.ser.read( 1 )
               message += packet
   
-              self.ser.write( bitFlip( ord( packet ) ) )
+              self.ser.write( self.bitFlip( ord( packet ) ) )
               packet = self.ser.read( 1 )
               i += 1
   
@@ -142,7 +139,7 @@ class kw1281():
           while i < messageLen:
               packet = self.ser.read( 1 )
               result.append( ord( packet ) )
-              self.ser.write( bitFlip( ord( packet ) ) )
+              self.ser.write( self.bitFlip( ord( packet ) ) )
               packet = self.ser.read( 1 )
               i += 1
   
@@ -161,24 +158,22 @@ class kw1281():
           b = array[index + 2]
           if array[index] == 1: 
               message += "RPM " + str( 0.2 * a * b ) + "\t"
-              self.conn.send( ['RPM', 0.2*a*b] )
+              self.data['rpm'] = 0.2 * a * b
           elif array[index] == 5: 
               message += "deg C " + str( a * ( b - 100 ) * 0.1 ) + "\t"
-              self.conn.send( ['TMP', a * ( b - 100 ) * 0.1] )
           elif array[index] == 7: 
               message += "km/h " + str( 0.01 * a * b ) + "\t"
-              self.conn.send( ['SPEED', 0.01*a*b] )
+              self.data['speed'] = 0.01 * a * b
           elif array[index] == 21: 
               message += "V " + str( 0.001 * a * b ) + "\t"
-              self.conn.send( ['V', 0.001*a*b] )
           elif array[index] == 22: 
               message += "??? " + str( 0.001 * a * b ) + "\t"
           elif array[index] == 35: 
               message += "l/h " + str( 0.01 * a * b ) + "\t"
-              self.conn.send( ['LH', 0.001*a*b] )
             #message += str( array[index] ) + '\t'
           i += 1
   
+      print self.data
       return message
   
   
@@ -234,7 +229,7 @@ class kw1281():
   
       packet = self.ser.read( 1 ) 
   
-      self.ser.write( bitFlip( ord( packet ) ) )
+      self.ser.write( self.bitFlip( ord( packet ) ) )
       packet = self.ser.read( 1 ) # always throws same packet back at us
   
       message = self.readBlock()
@@ -280,7 +275,8 @@ class kw1281():
 
 #############################################################################
 def main():
-  kw1281()
+  data = {'speed' : 200, 'rpm': 2000}
+  kw1281( data )
    
 if __name__ == "__main__":
     main()

@@ -4,7 +4,6 @@ import time
 import random
 
 import subprocess
-from multiprocessing.connection import Listener
 
 from PyQt4 import QtGui as qt
 from PyQt4 import QtCore as qtc
@@ -12,33 +11,7 @@ import pyqtgraph as pg
 
 
 from client import tester
-
-#kw = subprocess.Popen( ["python", "kw1281Audi.py"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False )
-#
-#
-#
-#
-#print kw
-#
-#
-#
-#address = ( 'localhost', 6000 )
-#listener = Listener( address, authkey="kw1281Audipass" )
-#conn = listener.accept()
-#
-#print "connection accepted from", listener.last_accepted
-#
-#while True:
-#    msg = conn.recv()
-#
-#    print msg
-#    if msg == 'close':
-#        conn.close()
-#
-#        kw = subprocess.Popen( ["python", "kw1281Audi.py"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False )
-#        conn = listener.accept()
-#
-#
+import kw1281Audi
 
 
 class GUI( qt.QWidget ):
@@ -72,8 +45,7 @@ class GUI( qt.QWidget ):
         self.addTextLabels()
         self.show()
 
-        #### self.showFullScreen() ####
-
+        self.showFullScreen() ###
         self.timer = qtc.QTimer( self )
         self.timer.setInterval( 200 )
         self.timer.timeout.connect( self.custUpdate )
@@ -185,10 +157,11 @@ class GUI( qt.QWidget ):
 
 
 def main():
+    pg.setConfigOption( 'background', ( 51, 51, 51 ) )
     data = { 'speed' : 25, 'rpm' : 2000 }
     app = qt.QApplication( [] )
     w = GUI( data )
-    task = tester( data )
+    task = kw1281Audi.kw1281( data )
     task.daemon = True
     task.start()
     sys.exit( app.exec_() )
@@ -196,5 +169,4 @@ def main():
 
 
 if __name__ == '__main__':
-    pg.setConfigOption( 'background', ( 51, 51, 51 ) )
     main()
