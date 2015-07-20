@@ -276,7 +276,8 @@ class kw1281( threading.Thread ):
 #############################################################################
 def main():
   data = {'speed' : 200, 'rpm': 2000}
-  kw1281( data )
+  task = kw1281( data )
+  task.start()
    
 if __name__ == "__main__":
     main()

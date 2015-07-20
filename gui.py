@@ -20,6 +20,10 @@ class GUI( qt.QWidget ):
 
         self.data = data
 
+        self.task = kw1281Audi.kw1281( data )
+        self.task.daemon = True
+        self.task.start()
+
         self.RPMplot = None
         self.RPMData = []
         self.RPMtext = None
@@ -45,7 +49,7 @@ class GUI( qt.QWidget ):
         self.addTextLabels()
         self.show()
 
-        self.showFullScreen() ###
+        ### self.showFullScreen() ###
         self.timer = qtc.QTimer( self )
         self.timer.setInterval( 200 )
         self.timer.timeout.connect( self.custUpdate )
@@ -54,7 +58,6 @@ class GUI( qt.QWidget ):
 
 
     def custUpdate( self ):
-
 
         self.RPMtext.setText( str(self.data['rpm']) )
         self.SPEEDtext.setText( str( self.data['speed'] ) )
@@ -83,6 +86,12 @@ class GUI( qt.QWidget ):
             self.SPEEDplot.setData( self.SPEEDData )
 
         self.SPEEDplot.setData( self.SPEEDData )
+
+        if self.task.isAlive() is not True:
+            time.sleep( 1 )
+            self.task = kw1281Audi.kw1281( self.data )
+            self.task.daemon = True
+            self.task.run()
 
 
 
@@ -158,12 +167,10 @@ class GUI( qt.QWidget ):
 
 def main():
     pg.setConfigOption( 'background', ( 51, 51, 51 ) )
+
     data = { 'speed' : 25, 'rpm' : 2000 }
     app = qt.QApplication( [] )
     w = GUI( data )
-    task = kw1281Audi.kw1281( data )
-    task.daemon = True
-    task.start()
     sys.exit( app.exec_() )
 
 
