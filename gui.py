@@ -166,41 +166,45 @@ class GUI( qt.QWidget ):
         SPEEDUnit.resize( 150, 30 )
         SPEEDUnit.move( self.margin + 2 * self.availableSpace / 3 + 25, self.height() / 3 - 108 )
 
+
+
+
+
         self.MILEAGEtext = qt.QLabel( "1900", self )
         self.MILEAGEtext.setFont( smallFontNumber )
         self.MILEAGEtext.setAlignment( qtc.Qt.AlignCenter )
         self.MILEAGEtext.resize( 150, 80 )
-        self.MILEAGEtext.move( self.margin, self.height() / 3 - 180 )
+        self.MILEAGEtext.move( self.margin / 2, self.height() / 3 - 180 )
 
         MILEAGEUnit = qt.QLabel( "MILEAGE", self )
         MILEAGEUnit.setFont( smallFontUnit )
         MILEAGEUnit.setAlignment( qtc.Qt.AlignCenter )
         MILEAGEUnit.resize( 150, 30 )
-        MILEAGEUnit.move( self.margin, self.height() / 3 - 108 )
+        MILEAGEUnit.move( self.margin / 2, self.height() / 3 - 108 )
         
         self.USAGEtext = qt.QLabel( "1900", self )
         self.USAGEtext.setFont( smallFontNumber )
         self.USAGEtext.setAlignment( qtc.Qt.AlignCenter )
         self.USAGEtext.resize( 150, 80 )
-        self.USAGEtext.move( self.margin, self.height() / 3 - 180 )
+        self.USAGEtext.move( self.margin / 2, self.height() / 2 - 180 )
 
         USAGEUnit = qt.QLabel( "USAGE", self )
         USAGEUnit.setFont( smallFontUnit )
         USAGEUnit.setAlignment( qtc.Qt.AlignCenter )
         USAGEUnit.resize( 150, 30 )
-        USAGEUnit.move( self.margin, self.height() / 3 - 108 )
+        USAGEUnit.move( self.margin / 2, self.height() / 2 - 108 )
         
         self.GasText = qt.QLabel( "1900", self )
         self.GasText.setFont( smallFontNumber )
         self.GasText.setAlignment( qtc.Qt.AlignCenter )
         self.GasText.resize( 150, 80 )
-        self.GasText.move( self.margin, self.height() / 3 - 180 )
+        self.GasText.move( self.margin / 2, 2 * self.height() / 3 - 180 )
 
         GasUnit = qt.QLabel( "Gas", self )
         GasUnit.setFont( smallFontUnit )
         GasUnit.setAlignment( qtc.Qt.AlignCenter )
         GasUnit.resize( 150, 30 )
-        GasUnit.move( self.margin, self.height() / 3 - 108 )
+        GasUnit.move( self.margin / 2, 2 * self.height() / 3 - 108 )
 
 
 
