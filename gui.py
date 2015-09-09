@@ -35,6 +35,10 @@ class GUI( qt.QWidget ):
         self.SPEEDAxisMover = 0
         self.timeCounter = 0;
 
+        self.GAStext = None
+        self.MILEAGEtext = None
+        self.USAGEtext = None
+
         self.initUI()
 
 
@@ -135,6 +139,9 @@ class GUI( qt.QWidget ):
         fontNumber = qt.QFont( "Arial", 45, qt.QFont.Bold )
         fontUnit = qt.QFont( "Arial", 25, qt.QFont.Bold )
 
+        smallFontNumber = qt.QFont( "Arial", 25, qt.QFont.Bold )
+        smallFontUnit = qt.QFont( "Arial", 18, qt.QFont.Bold )
+
         self.RPMtext = qt.QLabel( "1900", self )
         self.RPMtext.setFont( fontNumber )
         self.RPMtext.setAlignment( qtc.Qt.AlignCenter )
@@ -159,7 +166,41 @@ class GUI( qt.QWidget ):
         SPEEDUnit.resize( 150, 30 )
         SPEEDUnit.move( self.margin + 2 * self.availableSpace / 3 + 25, self.height() / 3 - 108 )
 
+        self.MILEAGEtext = qt.QLabel( "1900", self )
+        self.MILEAGEtext.setFont( smallFontNumber )
+        self.MILEAGEtext.setAlignment( qtc.Qt.AlignCenter )
+        self.MILEAGEtext.resize( 150, 80 )
+        self.MILEAGEtext.move( self.margin, self.height() / 3 - 180 )
 
+        MILEAGEUnit = qt.QLabel( "MILEAGE", self )
+        MILEAGEUnit.setFont( smallFontUnit )
+        MILEAGEUnit.setAlignment( qtc.Qt.AlignCenter )
+        MILEAGEUnit.resize( 150, 30 )
+        MILEAGEUnit.move( self.margin, self.height() / 3 - 108 )
+        
+        self.USAGEtext = qt.QLabel( "1900", self )
+        self.USAGEtext.setFont( smallFontNumber )
+        self.USAGEtext.setAlignment( qtc.Qt.AlignCenter )
+        self.USAGEtext.resize( 150, 80 )
+        self.USAGEtext.move( self.margin, self.height() / 3 - 180 )
+
+        USAGEUnit = qt.QLabel( "USAGE", self )
+        USAGEUnit.setFont( smallFontUnit )
+        USAGEUnit.setAlignment( qtc.Qt.AlignCenter )
+        USAGEUnit.resize( 150, 30 )
+        USAGEUnit.move( self.margin, self.height() / 3 - 108 )
+        
+        self.GasText = qt.QLabel( "1900", self )
+        self.GasText.setFont( smallFontNumber )
+        self.GasText.setAlignment( qtc.Qt.AlignCenter )
+        self.GasText.resize( 150, 80 )
+        self.GasText.move( self.margin, self.height() / 3 - 180 )
+
+        GasUnit = qt.QLabel( "Gas", self )
+        GasUnit.setFont( smallFontUnit )
+        GasUnit.setAlignment( qtc.Qt.AlignCenter )
+        GasUnit.resize( 150, 30 )
+        GasUnit.move( self.margin, self.height() / 3 - 108 )
 
 
 
@@ -168,7 +209,7 @@ class GUI( qt.QWidget ):
 def main():
     pg.setConfigOption( 'background', ( 136, 136, 136 ) )
 
-    data = { 'speed' : 125.0, 'rpm' : 2000.0 }
+    data = { 'speed' : 125.0, 'rpm' : 2000.0, 'gas' : 20, 'km' : 3300, 'usage' : 3.5 }
     app = qt.QApplication( [] )
     w = GUI( data )
     sys.exit( app.exec_() )
