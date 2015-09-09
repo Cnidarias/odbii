@@ -221,6 +221,8 @@ class kw1281( threading.Thread ):
       self.ser.setDTR( True )
       self.ser.setBreak( False )
   
+      # needs to be changed to read until 
+      # it sends us an ack block
       packet = self.ser.read( 4 )
   
       packet = self.ser.read( 1 )
