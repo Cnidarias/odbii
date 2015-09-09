@@ -22,7 +22,7 @@ class GUI( qt.QWidget ):
 
         self.task = kw1281Audi.kw1281( data )
         self.task.daemon = True
-        self.task.start()
+        # self.task.start()
 
         self.RPMplot = None
         self.RPMData = []
@@ -42,7 +42,7 @@ class GUI( qt.QWidget ):
     def initUI( self ):
         self.setGeometry( 0, 0, 1024, 600 )
         self.setWindowTitle( 'Board Computer' )
-        self.setStyleSheet( "background-color:#333;" )
+        self.setStyleSheet( "background-color:#888;" )
         self.availableSpace =  7 * self.width() / 8
         self.margin = self.width() / 8
         self.addGraphs()
@@ -59,7 +59,7 @@ class GUI( qt.QWidget ):
 
     def custUpdate( self ):
 
-        self.RPMtext.setText( str(self.data['rpm']) )
+        self.RPMtext.setText( str( int( self.data['rpm'] ) ) )
         self.SPEEDtext.setText( str( self.data['speed'] ) )
 
         if len( self.RPMData ) < 120:
@@ -87,11 +87,11 @@ class GUI( qt.QWidget ):
 
         self.SPEEDplot.setData( self.SPEEDData )
 
-        if self.task.isAlive() is not True:
-            time.sleep( 1 )
-            self.task = kw1281Audi.kw1281( self.data )
-            self.task.daemon = True
-            self.task.run()
+        # if self.task.isAlive() is not True:
+        #     time.sleep( 1 )
+        #     self.task = kw1281Audi.kw1281( self.data )
+        #     self.task.daemon = True
+        #     self.task.run()
 
 
 
@@ -166,9 +166,9 @@ class GUI( qt.QWidget ):
 
 
 def main():
-    pg.setConfigOption( 'background', ( 51, 51, 51 ) )
+    pg.setConfigOption( 'background', ( 136, 136, 136 ) )
 
-    data = { 'speed' : 25, 'rpm' : 2000 }
+    data = { 'speed' : 125.0, 'rpm' : 2000.0 }
     app = qt.QApplication( [] )
     w = GUI( data )
     sys.exit( app.exec_() )
