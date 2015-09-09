@@ -49,7 +49,7 @@ class GUI( qt.QWidget ):
         self.addTextLabels()
         self.show()
 
-        ### self.showFullScreen() ###
+        self.showFullScreen() ###
         self.timer = qtc.QTimer( self )
         self.timer.setInterval( 200 )
         self.timer.timeout.connect( self.custUpdate )
