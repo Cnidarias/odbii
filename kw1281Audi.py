@@ -223,6 +223,11 @@ class kw1281( threading.Thread ):
   
       # needs to be changed to read until 
       # it sends us an ack block
+      # should be self.ser.read(3) to read the last ones 
+      # that we have sent the next one should be data 
+      # from the ecu - so start looping until we reach an 
+      # acc block?
+
       packet = self.ser.read( 4 )
   
       packet = self.ser.read( 1 )
