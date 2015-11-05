@@ -225,7 +225,7 @@ class GUI( qt.QWidget ):
 def main():
     pg.setConfigOption( 'background', ( 204, 204, 204 ) )
 
-    data = { 'speed' : 125.0, 'rpm' : 2000.0, 'gas' : 20, 'km' : 3300, 'usage' : 3.5 }
+    data = { 'speed' : 125.0, 'rpm' : 2000.0, 'gas' : 20, 'km' : 3300, 'usage' : 3.5, 'mileage': 10, 'time' : "12:12" }
     app = qt.QApplication( [] )
     w = GUI( data )
     sys.exit( app.exec_() )

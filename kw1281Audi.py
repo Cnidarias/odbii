@@ -10,6 +10,7 @@ class kw1281( threading.Thread ):
   def __init__ ( self, data ):
     threading.Thread.__init__( self )
     self.ser = None
+    self.state = 0
     address = ( 'localhost', 6000 )
     self.data = data
 
@@ -18,7 +19,9 @@ class kw1281( threading.Thread ):
     try:
         self.ser = serial.Serial( '/dev/ttyUSB0', 9600 , timeout = 1, rtscts = 1, dsrdtr = 1 )
         self.packetCounter = 0
-        self.openECU( 0x17 )  # Open DASHBOARD BABY
+
+        self.state = 1
+        self.openECU( 0x1 )  # Open DASHBOARD BABY
     except:
         if self.ser is not None:
             self.ser.close()
@@ -55,6 +58,7 @@ class kw1281( threading.Thread ):
   
       self.ser.write( chr( self.packetCounter ) )
       packet = self.ser.read( 1 )
+
       packet = self.ser.read( 1 ) # should be self.packetCounter kompliment
   
       self.ser.write( '\x09' ) # this is the block command
@@ -63,7 +67,30 @@ class kw1281( threading.Thread ):
   
       self.ser.write( '\x03' )
       packet = self.ser.read( 1 )
-  
+
+
+  def sendQuitBlock( self ):
+      if self.packetCounter == 0xff:
+          self.packetCounter = 0
+      else:
+          self.packetCounter += 1
+
+      self.ser.write( '\x03' )
+      self.ser.read( 1 )
+
+      packet = self.ser.read( 1 ) # should be 0x03 compliment
+
+      self.ser.write( chr( self.packetCounter ) )
+      packet = self.ser.read( 1 ) # should be self.packetCounter kompliment
+      
+      self.ser.write( '\x06' )
+      self.ser.read( 1 )
+
+      packet = self.ser.read( 1 ) # should be 0x06 compliment
+
+      self.ser.write( '\x03' )
+      packet = self.ser.read( 1 )
+
   
   def requestDataBlock( self, block ):
       if self.packetCounter == 0xff:
@@ -144,54 +171,103 @@ class kw1281( threading.Thread ):
               i += 1
   
           packet = self.ser.read( 1 ) # read 0x03 end block 
-          return self.humanReadAbleABVals(result)
+          return self.humanReadableVals(result)
   ####################################################
   
   
 
-  def humanReadAbleABVals( self, array ):
+  def humanReadableVals( self, array ):
       message = ""
       i = 0
       while i < 4:
           index = i * 3
           a = array[index + 1]
           b = array[index + 2]
-          if array[index] == 1: 
-              message += "RPM " + str( 0.2 * a * b ) + "\t"
-              self.data['rpm'] = 0.2 * a * b
-          elif array[index] == 5: 
-              message += "deg C " + str( a * ( b - 100 ) * 0.1 ) + "\t"
-          elif array[index] == 7: 
-              message += "km/h " + str( 0.01 * a * b ) + "\t"
-              self.data['speed'] = 0.01 * a * b
-          elif array[index] == 21: 
-              message += "V " + str( 0.001 * a * b ) + "\t"
-          elif array[index] == 22: 
-              message += "??? " + str( 0.001 * a * b ) + "\t"
-          elif array[index] == 35: 
-              message += "l/h " + str( 0.01 * a * b ) + "\t"
-            #message += str( array[index] ) + '\t'
+          if self.state == 1:
+
+            if array[index] == 1: 
+                message += "RPM " + str( 0.2 * a * b ) + "\t"
+                self.data['rpm'] = 0.2 * a * b
+            elif array[index] == 5: 
+                message += "deg C " + str( a * ( b - 100 ) * 0.1 ) + "\t"
+            elif array[index] == 7: 
+                message += "km/h " + str( 0.01 * a * b ) + "\t"
+                self.data['speed'] = 0.01 * a * b
+            elif array[index] == 21: 
+                message += "V " + str( 0.001 * a * b ) + "\t"
+            elif array[index] == 22: 
+                message += "??? " + str( 0.001 * a * b ) + "\t"
+            elif array[index] == 35: 
+                message += "l/h " + str( 0.01 * a * b ) + "\t"
+            else:
+                message += str( array[index] ) + '\t'
+
+          elif self.state == 2:
+
+            if array[index] == 1: 
+                message += "RPM " + str( 0.2 * a * b ) + "\t"
+                self.data['rpm'] = 0.2 * a * b
+            elif array[index] == 5:
+                message += "outsideTmp" + str( a * ( b - 100 ) * 0.1 ) + "\t"
+            elif array[index] == 7:
+                message += "km/h " + str( 0.01 * a * b ) + "\t"
+                self.data['speed'] = 0.01 * a * b
+            elif array[index] == 19:
+                message += "fuel l " + str( a * b * 0.01 ) + "\t"
+                self.data['gas'] = a * b * 0.01 
+            elif array[index] == 36:
+                message += "Mileage km " + str( a * 2560 + b * 10 ) + "\t"
+                self.data['mileage'] = a * 2560 + b * 10 
+            elif array[index] == 44:
+                message += "Time " + str( a ) + ":" + str( b ) + "\t"
+                self.data['time'] = str( a ) + ":" + str( b )
+            else:
+                message += "Unknown" + str( array[index] )
+
           i += 1
   
       print self.data
       return message
   
   
-  
-  
-  
+  def mainRunner( self ):
+     while True:
+          # this needs to be revamped
+          if self.state == 1:
+            print self.readBlock()
+            self.sendACKBlock()
+            print self.readBlock()
+            self.requestDataBlock(0x03)
+            print self.readBlock()
+            self.requestDataBlock(0x0b)
+
+            self.sendQuitBlock()
+
+            self.state = 2
+            self.openECU( 0x17 )
+          
+          if self.state == 2:
+            print self.readBlock()
+            self.sendACKBlock()
+            print self.readBlock()
+            # TBD
+            self.requestDataBlock(0x03)
+            print self.readBlock()
+            # TBD
+            self.requestDataBlock(0x0b)
+
+            self.sendQuitBlock()
+
+            self.state = 1
+            self.openECU( 0x1 )
+ 
+
+
   def openECU( self, address = 0x01 ):
-  
       delay = 0.2
   
       # For ECU Address 0x01:
       # need to send 0 1000 000 0 1
-      # first 0 is start bit 
-      # then we have the address 0x01 - but LSB first
-      # for 7 bits - cause 7O1 
-      # then we send odd parity bit
-      # then we send stop bit 
-      # should be easy enough right?
   
       self.sendBit( 0 )
       time.sleep( delay )
@@ -216,25 +292,23 @@ class kw1281( threading.Thread ):
   
       time.sleep( 0.5 )
   
-  
       self.ser.setRTS( True )
       self.ser.setDTR( True )
       self.ser.setBreak( False )
+      
+      # read the bits you sent to "clear" buffer
   
-      # needs to be changed to read until 
-      # it sends us an ack block
-      # should be self.ser.read(3) to read the last ones 
-      # that we have sent the next one should be data 
-      # from the ecu - so start looping until we reach an 
-      # acc block?
+      # Read stuff that we do not /really/ care about
+      self.ser.read( 7 )
 
-      packet = self.ser.read( 4 )
+      # Kennungs ID
+      #packet = self.ser.read( 4 )
   
-      packet = self.ser.read( 1 )
+      #packet = self.ser.read( 1 )
   
-      packet = self.ser.read( 1 )
+      #packet = self.ser.read( 1 )
   
-      packet = self.ser.read( 1 ) 
+      #packet = self.ser.read( 1 ) 
   
       self.ser.write( self.bitFlip( ord( packet ) ) )
       packet = self.ser.read( 1 ) # always throws same packet back at us
@@ -266,19 +340,12 @@ class kw1281( threading.Thread ):
       #  except:
       #    break
   
-      while True:
-          print self.readBlock()
-          self.sendACKBlock()
-          print self.readBlock()
-          self.requestDataBlock(0x03)
-          print self.readBlock()
-          self.requestDataBlock(0x0b)
-
-
+      self.mainRunner()
+     
 
 #############################################################################
 def main():
-  data = {'speed' : 200, 'rpm': 2000}
+  data = {'speed' : 200, 'rpm': 2000, 'fuel': 10, 'mileage': 10, 'time' : "12:12" }
   task = kw1281( data )
   task.start()
    
