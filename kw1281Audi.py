@@ -282,7 +282,7 @@ class kw1281( threading.Thread ):
               message += "Widerstand [ohm] " + str( value ) + "\n"
 
           else:
-              message += "Unknown " + str( array[index] ) + "a: " str( a ) + "b: " + str( b ) + '\n'
+              message += "Unknown " + str( array[index] ) + "a: " + str( a ) + "b: " + str( b ) + '\n'
 
           i += 1
   
