@@ -22,7 +22,7 @@ class GUI( qt.QWidget ):
 
         self.task = kw1281Audi.kw1281( data )
         self.task.daemon = True
-        # self.task.start()
+        self.task.start()
 
         self.RPMplot = None
         self.RPMData = []
@@ -40,11 +40,13 @@ class GUI( qt.QWidget ):
         self.USAGEtext = None
 
         self.initUI()
+        self.var = 1
 
 
 
     def initUI( self ):
         self.setGeometry( 0, 0, 1024, 620 )
+        #self.setGeometry( 0, 0, 600, 400 )
         self.setWindowTitle( 'Board Computer' )
         self.setStyleSheet( "background-color:#ccc;" )
         self.availableSpace =  7 * self.width() / 8
@@ -53,7 +55,7 @@ class GUI( qt.QWidget ):
         self.addTextLabels()
         self.show()
 
-        ### self.showFullScreen() ###
+        self.showFullScreen() ###
         self.timer = qtc.QTimer( self )
         self.timer.setInterval( 200 )
         self.timer.timeout.connect( self.custUpdate )
@@ -63,8 +65,11 @@ class GUI( qt.QWidget ):
 
     def custUpdate( self ):
 
+        self.var += 1
+        print "RUNNING\t" + str( self.var )
         self.RPMtext.setText( str( int( self.data['rpm'] ) ) )
         self.SPEEDtext.setText( str( self.data['speed'] ) )
+        self.USAGEtext.setText( str( self.data['usage'] ) )
 
         if len( self.RPMData ) < 120:
             self.RPMData.append( self.data['rpm'])
@@ -91,11 +96,11 @@ class GUI( qt.QWidget ):
 
         self.SPEEDplot.setData( self.SPEEDData )
 
-        # if self.task.isAlive() is not True:
-        #     time.sleep( 1 )
-        #     self.task = kw1281Audi.kw1281( self.data )
-        #     self.task.daemon = True
-        #     self.task.run()
+        if self.task.isAlive() is not True:
+            self.task = kw1281Audi.kw1281( self.data )
+            self.task.daemon = True
+            self.task.start()
+
 
 
 

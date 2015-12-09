@@ -11,6 +11,7 @@ class kw1281( threading.Thread ):
     threading.Thread.__init__( self )
     self.ser = None
     self.state = 0
+    self.ecuOpen = -1
     address = ( 'localhost', 6000 )
     self.data = data
 
@@ -21,11 +22,12 @@ class kw1281( threading.Thread ):
         self.packetCounter = 0
 
         self.state = 1
-        self.openECU( 0x1 )  # Open DASHBOARD BABY
+        self.mainRunner()
     except:
         if self.ser is not None:
             self.ser.close()
-        raise
+        #raise
+        return
 
 
   def bitFlip( self, n ):
@@ -36,12 +38,10 @@ class kw1281( threading.Thread ):
       if bit == 1:
           self.ser.setRTS( True )
           self.ser.setBreak( False )
-          self.ser.write('\xff')
           self.ser.setRTS( False )
   
       if bit == 0:
           self.ser.setRTS( True )
-          self.ser.write('\x00')
           self.ser.setBreak( True )
   
   
@@ -128,11 +128,13 @@ class kw1281( threading.Thread ):
       #################################################
       packet = self.ser.read( 1 )
       messageLen = ord( packet )
+      #print "MESSAGE LEN\t " + str( messageLen )
       self.ser.write( self.bitFlip( messageLen ) )
       packet = self.ser.read( 1 )
   
       packet = self.ser.read( 1 )
       self.packetCounter = ord( packet )
+      #print "PACKET CTR\t " + str( self.packetCounter )
       self.ser.write(self.bitFlip( self.packetCounter ) )
       packet = self.ser.read( 1 )
   
@@ -140,6 +142,8 @@ class kw1281( threading.Thread ):
       blockTitle = ord( packet )
       self.ser.write( self.bitFlip( blockTitle ) )
       packet = self.ser.read( 1 )
+
+      #print "THIS IS BLOCKTITLE\t" + str( blockTitle )
   
       if blockTitle == 0xf6:
           i = 3
@@ -177,9 +181,10 @@ class kw1281( threading.Thread ):
   
 
   def humanReadableVals( self, array ):
-      message = ""
+      message = "READABLE CAR RET: "
       i = 0
-      while i < 4:
+      print array
+      while i < len( array ) / 3 :
           index = i * 3
           a = array[index + 1]
           b = array[index + 2]
@@ -199,6 +204,7 @@ class kw1281( threading.Thread ):
                 message += "??? " + str( 0.001 * a * b ) + "\t"
             elif array[index] == 35: 
                 message += "l/h " + str( 0.01 * a * b ) + "\t"
+                self.data['usage'] = 0.001 * a * b 
             else:
                 message += str( array[index] ) + '\t'
 
@@ -234,32 +240,30 @@ class kw1281( threading.Thread ):
      while True:
           # this needs to be revamped
           if self.state == 1:
-            print self.readBlock()
+            if self.ecuOpen != 0x01:
+              self.openECU( 0x01 )
+              self.ecuOpen = 0x01
             self.sendACKBlock()
             print self.readBlock()
             self.requestDataBlock(0x03)
             print self.readBlock()
             self.requestDataBlock(0x0b)
+            print self.readBlock()
 
-            self.sendQuitBlock()
-
-            self.state = 2
-            self.openECU( 0x17 )
+            #self.sendQuitBlock()
+            #self.state = 2
           
           if self.state == 2:
-            print self.readBlock()
+            if self.ecuOpen != 0x17:
+              self.openECU( 0x17 )
+              self.ecuOpen = 0x17
             self.sendACKBlock()
             print self.readBlock()
-            # TBD
-            self.requestDataBlock(0x03)
+            self.requestDataBlock(0x01)
             print self.readBlock()
-            # TBD
-            self.requestDataBlock(0x0b)
 
-            self.sendQuitBlock()
-
-            self.state = 1
-            self.openECU( 0x1 )
+            #self.sendQuitBlock()
+            #self.state = 1
  
 
 
@@ -299,17 +303,25 @@ class kw1281( threading.Thread ):
       # read the bits you sent to "clear" buffer
   
       # Read stuff that we do not /really/ care about
-      self.ser.read( 7 )
 
       # Kennungs ID
-      #packet = self.ser.read( 4 )
   
-      #packet = self.ser.read( 1 )
-  
-      #packet = self.ser.read( 1 )
-  
-      #packet = self.ser.read( 1 ) 
-  
+      print address
+
+      if address == 0x01:
+        packet = self.ser.read( 1 )
+        while ord( packet ) != 0x8a:
+          packet = self.ser.read( 1 )
+          print str( address ) +"\t"+ str( ord( packet ) )
+      else:
+        packet = self.ser.read( 1 )
+        while ord( packet ) != 0x8a:
+          packet = self.ser.read( 1 )
+          print str( address ) +"\t"+ str( ord( packet ) )
+        packet = self.ser.read( 1 )
+        while ord( packet ) != 0x8a:
+          packet = self.ser.read( 1 )
+          print str( address ) +"\t"+ str( ord( packet ) )
       self.ser.write( self.bitFlip( ord( packet ) ) )
       packet = self.ser.read( 1 ) # always throws same packet back at us
   
@@ -319,11 +331,13 @@ class kw1281( threading.Thread ):
       # it is finally done telling us who it is
       # then simply send another ACK block and start reading data - easy
       while message is not "ACK":
-        print message
+        print  "This is a message" 
+        print message 
         self.sendACKBlock() # self.send ack block confimration
         message = self.readBlock()
   
       self.sendACKBlock()
+      print self.readBlock()
 
       # NOW we have handeled basic communication -
       # We now self.send ACK commands back and forth - forever
@@ -340,12 +354,12 @@ class kw1281( threading.Thread ):
       #  except:
       #    break
   
-      self.mainRunner()
+      #self.mainRunner()
      
 
 #############################################################################
 def main():
-  data = {'speed' : 200, 'rpm': 2000, 'fuel': 10, 'mileage': 10, 'time' : "12:12" }
+  data = {'speed' : 200, 'rpm': 2000, 'fuel': 10, 'mileage': 10, 'time' : "12:12", 'usage' : 3.5  }
   task = kw1281( data )
   task.start()
    
