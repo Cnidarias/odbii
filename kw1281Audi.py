@@ -128,13 +128,11 @@ class kw1281( threading.Thread ):
       #################################################
       packet = self.ser.read( 1 )
       messageLen = ord( packet )
-      #print "MESSAGE LEN\t " + str( messageLen )
       self.ser.write( self.bitFlip( messageLen ) )
       packet = self.ser.read( 1 )
   
       packet = self.ser.read( 1 )
       self.packetCounter = ord( packet )
-      #print "PACKET CTR\t " + str( self.packetCounter )
       self.ser.write(self.bitFlip( self.packetCounter ) )
       packet = self.ser.read( 1 )
   
@@ -143,7 +141,6 @@ class kw1281( threading.Thread ):
       self.ser.write( self.bitFlip( blockTitle ) )
       packet = self.ser.read( 1 )
 
-      #print "THIS IS BLOCKTITLE\t" + str( blockTitle )
   
       if blockTitle == 0xf6:
           i = 3
@@ -183,56 +180,112 @@ class kw1281( threading.Thread ):
   def humanReadableVals( self, array ):
       message = "READABLE CAR RET: "
       i = 0
-      print array
       while i < len( array ) / 3 :
           index = i * 3
           a = array[index + 1]
           b = array[index + 2]
-          if self.state == 1:
+          value = 0;
 
-            if array[index] == 1: 
-                message += "RPM " + str( 0.2 * a * b ) + "\t"
-                self.data['rpm'] = 0.2 * a * b
-            elif array[index] == 5: 
-                message += "deg C " + str( a * ( b - 100 ) * 0.1 ) + "\t"
-            elif array[index] == 7: 
-                message += "km/h " + str( 0.01 * a * b ) + "\t"
-                self.data['speed'] = 0.01 * a * b
-            elif array[index] == 21: 
-                message += "V " + str( 0.001 * a * b ) + "\t"
-            elif array[index] == 22: 
-                message += "??? " + str( 0.001 * a * b ) + "\t"
-            elif array[index] == 35: 
-                message += "l/h " + str( 0.01 * a * b ) + "\t"
-                self.data['usage'] = 0.001 * a * b 
-            else:
-                message += str( array[index] ) + '\t'
+          if array[index] == 1: 
+              value = 0.2 * a * b;
+              message += "Motordrehzahl [rpm] " + str( value ) + "\n"
+              self.data['rpm'] = value
 
-          elif self.state == 2:
+          elif array[index] == 2 and self.ecuOpen == 0x01:
+              value = a * 0.002 * b
+              message += "Abs Drosselklast. [%] " + str( value ) + "\n"
 
-            if array[index] == 1: 
-                message += "RPM " + str( 0.2 * a * b ) + "\t"
-                self.data['rpm'] = 0.2 * a * b
-            elif array[index] == 5:
-                message += "outsideTmp" + str( a * ( b - 100 ) * 0.1 ) + "\t"
-            elif array[index] == 7:
-                message += "km/h " + str( 0.01 * a * b ) + "\t"
-                self.data['speed'] = 0.01 * a * b
-            elif array[index] == 19:
-                message += "fuel l " + str( a * b * 0.01 ) + "\t"
-                self.data['gas'] = a * b * 0.01 
-            elif array[index] == 36:
-                message += "Mileage km " + str( a * 2560 + b * 10 ) + "\t"
-                self.data['mileage'] = a * 2560 + b * 10 
-            elif array[index] == 44:
-                message += "Time " + str( a ) + ":" + str( b ) + "\t"
-                self.data['time'] = str( a ) + ":" + str( b )
-            else:
-                message += "Unknown" + str( array[index] )
+          elif array[index] == 5: 
+              value = a * ( b - 100 ) * 0.1 
+              if self.ecuOpen == 0x01:
+                  message += "Oel Temperatur [deg] " + str( value ) + "\n"
+              elif self.ecuOpen == 0x17:
+                  message += "Ausen Temperatur [deg] " + str( value ) + "\n"
+
+          elif array[index] == 6:
+              value = 0.001 * a * b
+              message += "Spannung ECU [V] " + str( value ) + "\n"
+
+          elif array[index] == 7: 
+              value = 0.01 * a * b 
+              message += "Geschwindigkeit [km/h] " + str( value ) + "\n"
+              self.data['speed'] = value
+
+          elif array[index] == 8 and self.ecuOpen == 0x01:
+              value = 0.1 * a * b 
+              message += "Cruse control [bool] " + str( value ) + "\n"
+
+          elif array[index] == 15 and self.ecuOpen == 0x01:
+              value = 0.01 * a * b
+              message += "CAN Bus Status [ms] " + str( value ) + "\n"
+
+          elif array[index] == 18 and self.ecuOpen == 0x01:
+              value = 0.04 * a * b
+              message += "Pressure [mbar] " + str( value ) + "\n"
+
+          elif array[index] == 19 and self.ecuOpen == 0x17:
+              value = a * b * 0.01
+              message += "Tank inhalt [L] " + str( value ) + "\n"
+
+          elif array[index] == 21 and self.ecuOpen == 0x01:
+              value = 0.001 * a * b
+              message += "Modul Piston [V] " + str( value ) + "\n"
+
+          elif array[index] == 23 and self.ecuOpen == 0x01: 
+              value = b / 256 * a
+              message += "EGR Valve [%] " + str( value ) + "\n"
+
+          elif array[index] == 27 and self.ecuOpen == 0x01:
+              value = abs( b-128 ) * 0.01 * a
+              message += "Ign Timing [deg] " + str( value ) + "\n"
+
+          elif array[index] == 31 and self.ecuOpen == 0x01: 
+              value = b / 2560 * a
+              message += "Preheating Time [deg] " + str( value ) + "\n"
+
+          elif array[index] == 33 and self.ecuOpen == 0x01:
+              if a == 0:
+                  value = 100 * b
+              else:
+                  value = 100 * b / a
+              message += "Stellung GasPedal [%] " + str( value ) + "\n"
+
+          elif array[index] == 35 and self.ecuOpen == 0x01: 
+              value = 0.01 * a * b  
+              message += "Verbrauch [l/h] " + str( value ) + "\n"
+              self.data['usage'] = value
+
+          elif array[index] == 36 and self.ecuOpen == 0x17: 
+              value = a * 2560 + b * 10
+              message += "Ges. Laufleistung [km] " + str( value ) + "\n"
+
+          elif array[index] == 39 and self.ecuOpen == 0x01: 
+              value = b / 256 * a
+              message = "Inj Quantitity Driver Req [mg/h] " + str( value ) + "\n"
+
+          elif array[index] == 44 and self.ecuOpen == 0x17:
+              message += "Uhrzeit " + str(a) + ":" + str( b ) + "\n"
+
+          elif array[index] == 49: 
+              value = ( b / 4 ) * a * 0.1
+              message += "Mass Air/Rev [mg/h]" + str( value ) + "\n"
+
+          elif array[index] == 53 and self.ecuOpen == 0x01: 
+              value = ( b - 128 )* 1.4222 + 0.006 * a
+              message += "Luftdurchfluss [g/s] " + str( value ) + "\n"
+
+          elif array[index] == 63 and self.ecuOpen == 0x01: 
+              message = "Text " + str( a ) + str( b ) + "?" + "\n"
+
+          elif array[index] == 64 and self.ecuOpen == 0x17: 
+              value = a + b 
+              message += "Widerstand [ohm] " + str( value ) + "\n"
+
+          else:
+              message += "Unknown " + str( array[index] ) + "a: " str( a ) + "b: " + str( b ) + '\n'
 
           i += 1
   
-      print self.data
       return message
   
   
@@ -354,7 +407,6 @@ class kw1281( threading.Thread ):
       #  except:
       #    break
   
-      #self.mainRunner()
      
 
 #############################################################################
