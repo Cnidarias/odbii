@@ -35,14 +35,20 @@ class GUI( qt.QWidget ):
         self.SPEEDAxisMover = 0
         self.timeCounter = 0;
 
+        self.GAStext = None
+        self.MILEAGEtext = None
+        self.USAGEtext = None
+
         self.initUI()
+        self.var = 1
 
 
 
     def initUI( self ):
-        self.setGeometry( 0, 0, 1024, 600 )
+        self.setGeometry( 0, 0, 1024, 620 )
+        #self.setGeometry( 0, 0, 600, 400 )
         self.setWindowTitle( 'Board Computer' )
-        self.setStyleSheet( "background-color:#333;" )
+        self.setStyleSheet( "background-color:#ccc;" )
         self.availableSpace =  7 * self.width() / 8
         self.margin = self.width() / 8
         self.addGraphs()
@@ -59,8 +65,11 @@ class GUI( qt.QWidget ):
 
     def custUpdate( self ):
 
-        self.RPMtext.setText( str(self.data['rpm']) )
+        self.var += 1
+        print "RUNNING\t" + str( self.var )
+        self.RPMtext.setText( str( int( self.data['rpm'] ) ) )
         self.SPEEDtext.setText( str( self.data['speed'] ) )
+        self.USAGEtext.setText( str( self.data['usage'] ) )
 
         if len( self.RPMData ) < 120:
             self.RPMData.append( self.data['rpm'])
@@ -88,10 +97,10 @@ class GUI( qt.QWidget ):
         self.SPEEDplot.setData( self.SPEEDData )
 
         if self.task.isAlive() is not True:
-            time.sleep( 1 )
             self.task = kw1281Audi.kw1281( self.data )
             self.task.daemon = True
-            self.task.run()
+            self.task.start()
+
 
 
 
@@ -135,40 +144,93 @@ class GUI( qt.QWidget ):
         fontNumber = qt.QFont( "Arial", 45, qt.QFont.Bold )
         fontUnit = qt.QFont( "Arial", 25, qt.QFont.Bold )
 
+        smallFontNumber = qt.QFont( "Arial", 25, qt.QFont.Bold )
+        smallFontUnit = qt.QFont( "Arial", 18, qt.QFont.Bold )
+
         self.RPMtext = qt.QLabel( "1900", self )
         self.RPMtext.setFont( fontNumber )
         self.RPMtext.setAlignment( qtc.Qt.AlignCenter )
-        self.RPMtext.resize( 150, 80 )
-        self.RPMtext.move( self.margin + self.availableSpace / 3 - 75, self.height() / 3 - 180 )
+        self.RPMtext.resize( 200, 80 )
+        self.RPMtext.move( self.margin + self.availableSpace / 3 - 100, self.height() / 3 - 180 )
+        self.RPMtext.setStyleSheet( "color:#000;" )
 
         RPMUnit = qt.QLabel( "RPM", self )
         RPMUnit.setFont( fontUnit )
         RPMUnit.setAlignment( qtc.Qt.AlignCenter )
-        RPMUnit.resize( 150, 30 )
-        RPMUnit.move( self.margin + self.availableSpace / 3 - 75, self.height() / 3 - 108 )
+        RPMUnit.resize( 200, 30 )
+        RPMUnit.move( self.margin + self.availableSpace / 3 - 100, self.height() / 3 - 108 )
+        RPMUnit.setStyleSheet( "color:#000;" )
 
         self.SPEEDtext = qt.QLabel( "100", self )
         self.SPEEDtext.setFont( fontNumber )
         self.SPEEDtext.setAlignment( qtc.Qt.AlignCenter )
-        self.SPEEDtext.resize( 150, 80 )
-        self.SPEEDtext.move( self.margin + 2 * self.availableSpace / 3 + 25, self.height() / 3 - 180 )
+        self.SPEEDtext.resize( 200, 80 )
+        self.SPEEDtext.move( self.margin + 2 * self.availableSpace / 3 + 0, self.height() / 3 - 180 )
+        self.SPEEDtext.setStyleSheet( "color:#000;" )
 
         SPEEDUnit = qt.QLabel( "km/h", self )
         SPEEDUnit.setFont( fontUnit )
         SPEEDUnit.setAlignment( qtc.Qt.AlignCenter )
-        SPEEDUnit.resize( 150, 30 )
-        SPEEDUnit.move( self.margin + 2 * self.availableSpace / 3 + 25, self.height() / 3 - 108 )
+        SPEEDUnit.resize( 200, 30 )
+        SPEEDUnit.move( self.margin + 2 * self.availableSpace / 3 + 0, self.height() / 3 - 108 )
+        SPEEDUnit.setStyleSheet( "color:#000;" )
+
+        #RX 22 00 C0 02 36
 
 
+
+
+        self.MILEAGEtext = qt.QLabel( "1900 km", self )
+        self.MILEAGEtext.setFont( smallFontNumber )
+        self.MILEAGEtext.setAlignment( qtc.Qt.AlignCenter )
+        self.MILEAGEtext.resize( 200, 80 )
+        self.MILEAGEtext.move( self.margin / 2, self.height() / 3 - 180 )
+        self.MILEAGEtext.setStyleSheet( "color:#000;" )
+
+
+        MILEAGEUnit = qt.QLabel( "Mileage", self )
+        MILEAGEUnit.setFont( smallFontUnit )
+        MILEAGEUnit.setAlignment( qtc.Qt.AlignCenter )
+        MILEAGEUnit.resize( 200, 30 )
+        MILEAGEUnit.move( self.margin / 2, self.height() / 3 - 128 )
+        MILEAGEUnit.setStyleSheet( "color:#000;" )
+        
+        self.USAGEtext = qt.QLabel( "1900 L/h", self )
+        self.USAGEtext.setFont( smallFontNumber )
+        self.USAGEtext.setAlignment( qtc.Qt.AlignCenter )
+        self.USAGEtext.resize( 200, 80 )
+        self.USAGEtext.move( self.margin / 2, self.height() / 2 - 180 )
+        self.USAGEtext.setStyleSheet( "color:#000;" )
+
+        USAGEUnit = qt.QLabel( "Usage", self )
+        USAGEUnit.setFont( smallFontUnit )
+        USAGEUnit.setAlignment( qtc.Qt.AlignCenter )
+        USAGEUnit.resize( 200, 30 )
+        USAGEUnit.move( self.margin / 2, self.height() / 2 - 128 )
+        USAGEUnit.setStyleSheet( "color:#000;" )
+        
+        self.GasText = qt.QLabel( "1900 L", self )
+        self.GasText.setFont( smallFontNumber )
+        self.GasText.setAlignment( qtc.Qt.AlignCenter )
+        self.GasText.resize( 200, 80 )
+        self.GasText.move( self.margin / 2, 2 * self.height() / 3 - 180 )
+        self.GasText.setStyleSheet( "color:#000;" )
+
+        GasUnit = qt.QLabel( "Tank", self )
+        GasUnit.setFont( smallFontUnit )
+        GasUnit.setAlignment( qtc.Qt.AlignCenter )
+        GasUnit.resize( 200, 30 )
+        GasUnit.move( self.margin / 2, 2 * self.height() / 3 - 128 )
+        GasUnit.setStyleSheet( "color:#000;" )
 
 
 
 
 
 def main():
-    pg.setConfigOption( 'background', ( 51, 51, 51 ) )
+    pg.setConfigOption( 'background', ( 204, 204, 204 ) )
 
-    data = { 'speed' : 25, 'rpm' : 2000 }
+    data = { 'speed' : 125.0, 'rpm' : 2000.0, 'gas' : 20, 'km' : 3300, 'usage' : 3.5, 'mileage': 10, 'time' : "12:12" }
     app = qt.QApplication( [] )
     w = GUI( data )
     sys.exit( app.exec_() )
