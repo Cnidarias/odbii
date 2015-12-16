@@ -28,18 +28,18 @@ class GUI( qt.QWidget ):
 
         self.RPMplot = None
         self.RPMData = []
-        self.RPMtext = None
+        self.rpmText = None
         self.RPMAxisMover = 0
 
         self.SPEEDplot = None
-        self.SPEEDtext = None
+        self.speedText = None
         self.SPEEDData = []
         self.SPEEDAxisMover = 0
         self.timeCounter = 0;
 
         self.GAStext = None
-        self.MILEAGEtext = None
-        self.USAGEtext = None
+        self.mileageText = None
+        self.usageText = None
 
         self.initUI()
 
@@ -62,13 +62,24 @@ class GUI( qt.QWidget ):
         self.timer.setInterval( 200 )
         self.timer.timeout.connect( self.custUpdate )
         self.timer.start()
+        self.initNavit()
+
+    def initNavit( self ):
+        container = qt.QX11EmbedContainer( self )
+        container.setGeometry( 112, 20, 800, 480 )
+        container.setMouseTracking( True )
+        container.show()
+        winId = container.winId()
+        process = qtc.QProcess(container)
+        os.environ['NAVIT_XID'] = str( winId )
+        process.startDetached("navit")
 
 
 
     def custUpdate( self ):
-        self.RPMtext.setText( str( int( self.data['rpm'] ) ) )
-        self.SPEEDtext.setText( str( self.data['speed'] ) )
-        self.USAGEtext.setText( str( self.data['usage'] ) )
+        self.rpmText.setText( str( int( self.data['rpm'] ) ) )
+        self.speedText.setText( str( self.data['speed'] ) )
+        self.usageText.setText( str( self.data['usage'] ) )
 
         if len( self.RPMData ) < 120:
             self.RPMData.append( self.data['rpm'])
@@ -83,17 +94,17 @@ class GUI( qt.QWidget ):
         self.RPMplot.setData( self.RPMData )
 
 
-        if len( self.SPEEDData ) < 120:
-           self.SPEEDData.append( self.data['speed'])
-        else:
-            self.SPEEDAxisMover += 1
-            self.SPEEDData[:-1] = self.SPEEDData[1:]
-            self.SPEEDData[-1] = self.data['speed']
-            self.SPEEDplot.setPos( self.SPEEDAxisMover, 0 )
-            self.SPEEDplot.setData( self.SPEEDData )
-            self.SPEEDplot.setData( self.SPEEDData )
+        ### if len( self.SPEEDData ) < 120:
+        ###    self.SPEEDData.append( self.data['speed'])
+        ### else:
+        ###     self.SPEEDAxisMover += 1
+        ###     self.SPEEDData[:-1] = self.SPEEDData[1:]
+        ###     self.SPEEDData[-1] = self.data['speed']
+        ###     self.SPEEDplot.setPos( self.SPEEDAxisMover, 0 )
+        ###     self.SPEEDplot.setData( self.SPEEDData )
+        ###     self.SPEEDplot.setData( self.SPEEDData )
 
-        self.SPEEDplot.setData( self.SPEEDData )
+        ### self.SPEEDplot.setData( self.SPEEDData )
 
         if self.task.isAlive() is not True and self.isDebug is not True:
             self.task = kw1281Audi.kw1281( self.data )
@@ -124,18 +135,18 @@ class GUI( qt.QWidget ):
 
     def addGraphs( self ):
         self.RPMplot = pg.PlotWidget( self )
-        self.RPMplot.resize( 250, 120 )
-        self.RPMplot.move( self.margin + self.availableSpace / 3 - 125 , self.height() / 3  + 270 )
+        self.RPMplot.resize( 900, 120 )
+        self.RPMplot.move( 62, self.height() / 3  + 300 )
         self.RPMplot.hideAxis( 'left' )
         self.RPMplot.hideAxis( 'bottom' )
         self.RPMplot = self.RPMplot.plot( self.RPMData, fillLevel = 1, brush = ( 50, 50, 200, 255 ) )
 
-        self.SPEEDplot = pg.PlotWidget( self )
-        self.SPEEDplot.resize( 250, 120 )
-        self.SPEEDplot.move( self.margin + 2 * self.availableSpace / 3 - 25 , self.height() / 3 + 270 )
-        self.SPEEDplot.hideAxis( 'left' )
-        self.SPEEDplot.hideAxis( 'bottom' )
-        self.SPEEDplot = self.SPEEDplot.plot( self.SPEEDData, fillLevel = 1, brush = ( 50, 50, 200, 255 ) )
+        ### self.SPEEDplot = pg.PlotWidget( self )
+        ### self.SPEEDplot.resize( 250, 120 )
+        ### self.SPEEDplot.move( self.margin + 2 * self.availableSpace / 3 - 25 , self.height() / 3 + 270 )
+        ### self.SPEEDplot.hideAxis( 'left' )
+        ### self.SPEEDplot.hideAxis( 'bottom' )
+        ### self.SPEEDplot = self.SPEEDplot.plot( self.SPEEDData, fillLevel = 1, brush = ( 50, 50, 200, 255 ) )
 
 
 
@@ -146,76 +157,79 @@ class GUI( qt.QWidget ):
         smallFontNumber = qt.QFont( "Arial", 25, qt.QFont.Bold )
         smallFontUnit = qt.QFont( "Arial", 18, qt.QFont.Bold )
 
-        self.RPMtext = qt.QLabel( "1900", self )
-        self.RPMtext.setFont( fontNumber )
-        self.RPMtext.setAlignment( qtc.Qt.AlignCenter )
-        self.RPMtext.resize( 200, 80 )
-        self.RPMtext.move( self.margin + self.availableSpace / 4 - 100, self.height() / 3 - 180 )
-        self.RPMtext.setStyleSheet( "color:#000;" )
+        self.rpmText = qt.QLabel( "1900", self )
+        self.rpmText.setFont( fontNumber )
+        self.rpmText.setAlignment( qtc.Qt.AlignCenter )
+        self.rpmText.resize( 200, 80 )
+        self.rpmText.move( 50, self.height() / 3 - 180 )
+        #self.rpmText.setStyleSheet( "color:#000;" )
+        self.rpmText.setStyleSheet( "background-color:rgba(0,0,0,0%);" )
 
-        RPMUnit = qt.QLabel( "RPM", self )
-        RPMUnit.setFont( fontUnit )
-        RPMUnit.setAlignment( qtc.Qt.AlignCenter )
-        RPMUnit.resize( 200, 30 )
-        RPMUnit.move( self.margin + 3 * self.availableSpace / 4 - 100, self.height() / 3 - 108 )
-        RPMUnit.setStyleSheet( "color:#000;" )
+        rpmUnit = qt.QLabel( "RPM", self )
+        rpmUnit.setFont( fontUnit )
+        rpmUnit.setAlignment( qtc.Qt.AlignCenter )
+        rpmUnit.resize( 200, 30 )
+        rpmUnit.move( self.margin - 80, self.height() / 3 - 108 )
+        rpmUnit.setStyleSheet( "background-color:rgba(0,0,0,0%);" )
 
-        self.SPEEDtext = qt.QLabel( "100", self )
-        self.SPEEDtext.setFont( fontNumber )
-        self.SPEEDtext.setAlignment( qtc.Qt.AlignCenter )
-        self.SPEEDtext.resize( 200, 80 )
-        self.SPEEDtext.move( self.margin + 2 * self.availableSpace / 3 + 0, self.height() / 3 - 180 )
-        self.SPEEDtext.setStyleSheet( "color:#000;" )
+        self.speedText = qt.QLabel( "100", self )
+        self.speedText.setFont( fontNumber )
+        self.speedText.setAlignment( qtc.Qt.AlignCenter )
+        self.speedText.resize( 200, 80 )
+        self.speedText.move( self.margin/2 + 2 * self.availableSpace / 3 + 0, self.height() / 3 - 180 )
+        self.speedText.setStyleSheet( "color:#000;" )
 
-        SPEEDUnit = qt.QLabel( "km/h", self )
-        SPEEDUnit.setFont( fontUnit )
-        SPEEDUnit.setAlignment( qtc.Qt.AlignCenter )
-        SPEEDUnit.resize( 200, 30 )
-        SPEEDUnit.move( self.margin + 2 * self.availableSpace / 3 + 0, self.height() / 3 - 108 )
-        SPEEDUnit.setStyleSheet( "color:#000;" )
+        speedUnit = qt.QLabel( "km/h", self )
+        speedUnit.setFont( fontUnit )
+        speedUnit.setAlignment( qtc.Qt.AlignCenter )
+        speedUnit.resize( 200, 30 )
+        speedUnit.move( self.margin/2 + 2 * self.availableSpace / 3 + 0, self.height() / 3 - 108 )
+        speedUnit.setStyleSheet( "color:#000;" )
 
-        ### self.MILEAGEtext = qt.QLabel( "1900 km", self )
-        ### self.MILEAGEtext.setFont( smallFontNumber )
-        ### self.MILEAGEtext.setAlignment( qtc.Qt.AlignCenter )
-        ### self.MILEAGEtext.resize( 200, 80 )
-        ### self.MILEAGEtext.move( self.margin / 2, self.height() / 3 - 180 )
-        ### self.MILEAGEtext.setStyleSheet( "color:#000;" )
+        self.usageText = qt.QLabel( "1900 L/h", self )
+        self.usageText.setFont( smallFontNumber )
+        self.usageText.setAlignment( qtc.Qt.AlignCenter )
+        self.usageText.resize( 200, 80 )
+        self.usageText.move( self.availableSpace/2-50, self.height()/3-180 )
+        self.usageText.setStyleSheet( "color:#000;" )
+
+        usageUnit = qt.QLabel( "Usage", self )
+        usageUnit.setFont( smallFontUnit )
+        usageUnit.setAlignment( qtc.Qt.AlignCenter )
+        usageUnit.resize( 200, 30 )
+        usageUnit.move( self.availableSpace / 2 - 50, self.height() / 3 - 128 )
+        usageUnit.setStyleSheet( "color:#000;" )
 
 
-        ### MILEAGEUnit = qt.QLabel( "Mileage", self )
-        ### MILEAGEUnit.setFont( smallFontUnit )
-        ### MILEAGEUnit.setAlignment( qtc.Qt.AlignCenter )
-        ### MILEAGEUnit.resize( 200, 30 )
-        ### MILEAGEUnit.move( self.margin / 2, self.height() / 3 - 128 )
-        ### MILEAGEUnit.setStyleSheet( "color:#000;" )
+        ### self.mileageText = qt.QLabel( "1900 km", self )
+        ### self.mileageText.setFont( smallFontNumber )
+        ### self.mileageText.setAlignment( qtc.Qt.AlignCenter )
+        ### self.mileageText.resize( 200, 80 )
+        ### self.mileageText.move( self.margin / 2, self.height() / 3 - 180 )
+        ### self.mileageText.setStyleSheet( "color:#000;" )
+
+
+        ### mileageUnit = qt.QLabel( "Mileage", self )
+        ### mileageUnit.setFont( smallFontUnit )
+        ### mileageUnit.setAlignment( qtc.Qt.AlignCenter )
+        ### mileageUnit.resize( 200, 30 )
+        ### mileageUnit.move( self.margin / 2, self.height() / 3 - 128 )
+        ### mileageUnit.setStyleSheet( "color:#000;" )
         
-        self.USAGEtext = qt.QLabel( "1900 L/h", self )
-        self.USAGEtext.setFont( smallFontNumber )
-        self.USAGEtext.setAlignment( qtc.Qt.AlignCenter )
-        self.USAGEtext.resize( 200, 80 )
-        self.USAGEtext.move( self.margin / 2, self.height() / 2 - 180 )
-        self.USAGEtext.setStyleSheet( "color:#000;" )
-
-        USAGEUnit = qt.QLabel( "Usage", self )
-        USAGEUnit.setFont( smallFontUnit )
-        USAGEUnit.setAlignment( qtc.Qt.AlignCenter )
-        USAGEUnit.resize( 200, 30 )
-        USAGEUnit.move( self.margin / 2, self.height() / 2 - 128 )
-        USAGEUnit.setStyleSheet( "color:#000;" )
         
-        ### self.GasText = qt.QLabel( "1900 L", self )
-        ### self.GasText.setFont( smallFontNumber )
-        ### self.GasText.setAlignment( qtc.Qt.AlignCenter )
-        ### self.GasText.resize( 200, 80 )
-        ### self.GasText.move( self.margin / 2, 2 * self.height() / 3 - 180 )
-        ### self.GasText.setStyleSheet( "color:#000;" )
+        ### self.gasText = qt.QLabel( "1900 L", self )
+        ### self.gasText.setFont( smallFontNumber )
+        ### self.gasText.setAlignment( qtc.Qt.AlignCenter )
+        ### self.gasText.resize( 200, 80 )
+        ### self.gasText.move( self.margin / 2, 2 * self.height() / 3 - 180 )
+        ### self.gasText.setStyleSheet( "color:#000;" )
 
-        ### GasUnit = qt.QLabel( "Tank", self )
-        ### GasUnit.setFont( smallFontUnit )
-        ### GasUnit.setAlignment( qtc.Qt.AlignCenter )
-        ### GasUnit.resize( 200, 30 )
-        ### GasUnit.move( self.margin / 2, 2 * self.height() / 3 - 128 )
-        ### GasUnit.setStyleSheet( "color:#000;" )
+        ### gasUnit = qt.QLabel( "Tank", self )
+        ### gasUnit.setFont( smallFontUnit )
+        ### gasUnit.setAlignment( qtc.Qt.AlignCenter )
+        ### gasUnit.resize( 200, 30 )
+        ### gasUnit.move( self.margin / 2, 2 * self.height() / 3 - 128 )
+        ### gasUnit.setStyleSheet( "color:#000;" )
 
 
 
