@@ -54,7 +54,6 @@ class GUI( qt.QWidget ):
 
     def initUI( self ):
         self.setGeometry( 0, 0, 1024, 620 )
-        #self.setGeometry( 0, 0, 600, 400 )
         self.setWindowTitle( 'Board Computer' )
         self.setStyleSheet( "background-color:#ccc;" )
         self.availableSpace =  8 * self.width() / 8
@@ -174,6 +173,7 @@ class GUI( qt.QWidget ):
 
 
     def custUpdate( self ):
+        self.data['rpm'] += 1
         self.rpmText.setText( str( int( self.data['rpm'] ) ) )
         self.speedText.setText( str( self.data['speed'] ) )
         self.usageText.setText( str( self.data['usage'] ) )
