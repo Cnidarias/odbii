@@ -7,11 +7,14 @@ import subprocess
 
 from PyQt4 import QtGui as qt
 from PyQt4 import QtCore as qtc
+
 import pyqtgraph as pg
 
 
 from client import tester
+from extendedQLabel import *
 import kw1281Audi
+import spotifyPython
 
 
 class GUI( qt.QWidget ):
@@ -21,10 +24,14 @@ class GUI( qt.QWidget ):
         self.data = data
 
         self.isDebug = True
+
         self.task = kw1281Audi.kw1281( data )
         self.task.daemon = True
         if self.isDebug is not True:
           self.task.start()
+
+        self.spotify = spotifyPython.Commander( False )
+        self.spotify.do_relogin()
 
         self.RPMplot = None
         self.RPMData = []
@@ -62,17 +69,107 @@ class GUI( qt.QWidget ):
         self.timer.setInterval( 200 )
         self.timer.timeout.connect( self.custUpdate )
         self.timer.start()
-        self.initNavit()
+        #self.initNavit()
+        self.initSpotify()
 
     def initNavit( self ):
         container = qt.QX11EmbedContainer( self )
         container.setGeometry( 112, 20, 800, 480 )
-        container.setMouseTracking( True )
         container.show()
         winId = container.winId()
         process = qtc.QProcess(container)
         os.environ['NAVIT_XID'] = str( winId )
         process.startDetached("navit")
+
+    def initSpotify( self ):
+        playLists = self.spotify.do_get_Playlist()
+
+        self.spotifyContainer = qt.QWidget()
+        self.spotifyContainer.show()
+        
+        self.spotifyLayout = qt.QFormLayout()
+        fontUnit = qt.QFont( "Arial", 35, qt.QFont.Bold )
+
+        for ele in playLists:
+            widget = ExtendedQLabel( self.spotifyContainer )
+            widget.setText( ele[1] )
+            widget.setData( ele[0] )
+            widget.setFont( fontUnit )
+            self.connect( widget, SIGNAL('clicked( QObject )'), self.playListClicked )
+            self.spotifyLayout.addRow( widget )
+            
+        self.spotifyContainer.setLayout( self.spotifyLayout )
+        scroll = qt.QScrollArea()
+        scroll.setWidget( self.spotifyContainer )
+        scroll.setWidgetResizable( True )
+        scroll.setFixedHeight( 280 )
+        scroll.setWidget( self.spotifyContainer )
+
+        scroll.verticalScrollBar().setFixedWidth( 30 )
+
+        pLayout = qt.QVBoxLayout( self )
+        pLayout.setSpacing( 1 )
+        pLayout.setAlignment( qtc.Qt.AlignCenter )
+        pLayout.setContentsMargins( 70, 0, 70, 0 )
+        pLayout.addWidget( scroll )
+        #pLayout.setMargin( 70 )
+
+
+        button = qt.QPushButton( "PlayList" )
+        button.setFixedHeight( 50 )
+        pLayout.addWidget( button )
+        button.clicked.connect( self.showPlayList )
+
+    def showPlayList( self ):
+        playLists = self.spotify.do_get_Playlist()
+        for i in reversed( range( self.spotifyLayout.count() ) ):
+            self.spotifyLayout.itemAt( i ).widget().setParent( None )
+
+        fontUnit = qt.QFont( "Arial", 35, qt.QFont.Bold )
+
+        for ele in playLists:
+            widget = ExtendedQLabel( self.spotifyContainer )
+            widget.setText( ele[1] )
+            widget.setData( ele[0] )
+            widget.setFont( fontUnit )
+            self.connect( widget, SIGNAL('clicked( QObject )'), self.playListClicked )
+            self.spotifyLayout.addRow( widget )
+        
+
+
+    def playListClicked( self, element):
+        tracks = self.spotify.do_play_playlist( str(element.getData() ) )
+        fontUnit = qt.QFont( "Arial", 15, qt.QFont.Bold )
+        print "Label Clicked"
+        for i in reversed( range( self.spotifyLayout.count() ) ):
+            self.spotifyLayout.itemAt( i ).widget().setParent( None )
+
+        for ele in tracks:
+            boxLayout = qt.QHBoxLayout()
+            widget = ExtendedQLabel( self.spotifyContainer )
+            if ele[1] is not None:
+                widget.setText( ele[1] )
+            widget.setData( ele[0] )
+            widget.setFont( fontUnit )
+
+            widget2 = ExtendedQLabel( self.spotifyContainer )
+            if ele[2] is not None:
+                widget2.setText( self.milliSecondsToMin( ele[2] ) )
+            widget2.setFont( fontUnit )
+            widget2.setAlignment( qtc.Qt.AlignCenter )
+
+            widget3 = ExtendedQLabel( self.spotifyContainer )
+            if ele[3] is not None:
+                widget3.setText( ele[3] )
+            widget3.setFont( fontUnit )
+
+            boxLayout.addWidget( widget2 )
+            boxLayout.addWidget( widget3 )
+
+            cont = qt.QWidget()
+            cont.setLayout( boxLayout )
+
+            self.spotifyLayout.addRow( widget, cont )
 
 
 
@@ -111,7 +208,13 @@ class GUI( qt.QWidget ):
             self.task.daemon = True
             self.task.start()
 
-
+    def milliSecondsToMin( self, millis ):
+        s = millis / 1000 
+        m,s = divmod( s, 60 )
+        
+        if s < 10:
+            s = "0" + str( s )
+        return str(m)+":"+str(s)
 
 
 

@@ -5,7 +5,7 @@ from PyQt4 import QtGui, QtCore, QtWebKit
 class QCustomWebView( QtWebKit.QWebView ):
     def __init__( self, parent = None ):
         super( QCustomWebView, self ).__init__( parent )
-        self.load( QtCore.QUrl( 'http://127.0.0.1/webInterface' ) )
+        self.load( QtCore.QUrl( 'http://localhost:6680/spotmop' ) )
         self.settings().setAttribute( QtWebKit.QWebSettings.JavascriptEnabled, True )
 
 
