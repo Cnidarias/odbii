@@ -15,7 +15,7 @@ class getSound( threading.Thread ):
 
     self.stream = self.p.open( format = self.p.get_format_from_width( 2 ),
         channels = 2,
-        rate = 44100,
+        rate = 26000,
         input = True,
         output = False,
         frames_per_buffer = 2048 )
