@@ -19,14 +19,26 @@ class CarColorChanger(qt.QWidget):
         self.max = 0
         self.min = 0
 
-        self.MIN = -250
-        self.MAX = 250
+        self.MIN = -800
+        self.MAX = 200
+
         
+        self.changingColor0 = [255, 0, 0]
+        self.changingColor1 = [255, 0, 0]
+        self.changingColor2 = [255, 0, 0]
+        self.changingColor3 = [255, 0, 0]
+        self.changingColor4 = [255, 0, 0]
+        self.increasingIndex = 0
+        self.increasing = "G"
+        self.increasingSequence = "GrBgRb"
+        self.increasingRate = 80
+        self.timerChange = 0
+        self.timerAmount = 10
+        self.counter = 0
+
         self.initUI()
         
     def initUI(self):
-
-        
         grid = qt.QGridLayout()
         self.setLayout(grid)
  
@@ -71,9 +83,13 @@ class CarColorChanger(qt.QWidget):
       if self.data['left'] < self.min: self.min = self.data['left']  
 
       if self.data['left'] == self.min or self.data['left'] == self.max:
-          print "MAX: " + str( self.max ) + "\nMIN: " + str( self.min ) + "\n"
-      self.numberIsColorMethod()
-      #self.shadesOfColor( 0, 255, 0 )
+          #print "MAX: " + str( self.max ) + "\nMIN: " + str( self.min ) + "\n"
+          pass
+
+
+      #self.numberIsColorMethod()
+      #self.shadesOfColor( ( 0, 255, 0 ) )
+      self.shadesOfColorCircle()
 
     
 
@@ -82,10 +98,14 @@ class CarColorChanger(qt.QWidget):
       
 
 
-    def shadesOfColor( self, r, g, b ):
+    def shadesOfColor( self, color, widget = None, side = None ):
+      r = color[0]
+      g = color[1]
+      b = color[2]
+
       ratioL = float( ( self.data['left'] - self.MIN ) / float(self.MAX - self.MIN) )
       if ratioL < 0: ratioL = 0
-      if ratioL > 255: ratioL = 255
+      if ratioL > 1: ratioL = 1
 
       leftR = ratioL * r
       leftG = ratioL * g
@@ -93,22 +113,90 @@ class CarColorChanger(qt.QWidget):
 
       ratioR = float( ( self.data['right'] - self.MIN ) / float(self.MAX - self.MIN) )
       if ratioR < 0: ratioR = 0
-      if ratioR > 255: ratioR = 255
+      if ratioR > 1: ratioR = 1
       
       rightR = ratioR * r
       rightG = ratioR * g
       rightB = ratioR * b
+
+
+      leftR = self.clamp( 0, leftR, 255 )
+      leftG = self.clamp( 0, leftG, 255 )
+      leftB = self.clamp( 0, leftB, 255 )
+
+      rightR = self.clamp( 0, rightR, 255 )
+      rightG = self.clamp( 0, rightG, 255 )
+      rightB = self.clamp( 0, rightB, 255 )
       
       
-      self.changeWidgetColor( self.wid0, leftR, leftG, leftB )
-      self.changeWidgetColor( self.wid2, leftR, leftG, leftB )
+      if widget == None:
+        self.changeWidgetColor( self.wid0, leftR, leftG, leftB )
+        self.changeWidgetColor( self.wid2, leftR, leftG, leftB )
 
-      self.changeWidgetColor( self.wid1, rightR, rightG, rightB )
-      self.changeWidgetColor( self.wid3, rightR, rightG, rightB )
+        self.changeWidgetColor( self.wid1, rightR, rightG, rightB )
+        self.changeWidgetColor( self.wid3, rightR, rightG, rightB )
 
-      self.changeWidgetColor( self.wid4, (leftR + rightR)/2, (leftG + rightG)/2, (leftB + rightB)/2 )
+        self.changeWidgetColor( self.wid4, (leftR + rightR)/2, (leftG + rightG)/2, (leftB + rightB)/2 )
+
+      else:
+        if side == "left": self.changeWidgetColor( widget, leftR, leftG, leftB )
+        elif side == "right" : self.changeWidgetColor( widget, rightR, rightG, rightB )
+        elif side == "center" : self.changeWidgetColor( widget, (leftR + rightR)/2, (leftG + rightG)/2, (leftB + rightB)/2 )
 
 
+    def shadesOfColorCircle( self ):
+      self.timerChange += 1
+      if self.timerChange >= self.timerAmount:
+        self.timerChange = 0
+
+        self.changingColor1[0] = self.changingColor2[0]
+        self.changingColor1[1] = self.changingColor2[1]
+        self.changingColor1[2] = self.changingColor2[2]
+
+        self.changingColor2[0] = self.changingColor3[0]
+        self.changingColor2[1] = self.changingColor3[1]
+        self.changingColor2[2] = self.changingColor3[2]
+
+        self.changingColor3[0] = self.changingColor4[0]
+        self.changingColor3[1] = self.changingColor4[1]
+        self.changingColor3[2] = self.changingColor4[2]
+
+        self.changingColor4[0] = self.changingColor0[0]
+        self.changingColor4[1] = self.changingColor0[1]
+        self.changingColor4[2] = self.changingColor0[2]
+
+        if self.increasing == "R": self.changingColor0[0] += self.increasingRate
+        elif self.increasing == "r": self.changingColor0[0] -= self.increasingRate
+        elif self.increasing == "G": self.changingColor0[1] += self.increasingRate
+        elif self.increasing == "g": self.changingColor0[1] -= self.increasingRate
+        elif self.increasing == "B": self.changingColor0[2] += self.increasingRate
+        elif self.increasing == "b": self.changingColor0[2] -= self.increasingRate
+
+
+        self.shadesOfColor( self.changingColor0, self.wid0, "left" )
+        self.shadesOfColor( self.changingColor1, self.wid1, "right" )
+        self.shadesOfColor( self.changingColor2, self.wid3, "right" )
+        self.shadesOfColor( self.changingColor3, self.wid4, "center" )
+        self.shadesOfColor( self.changingColor4, self.wid2, "left" )
+
+        self.counter += self.increasingRate
+
+        if self.counter >= 255:
+          self.counter = 0
+          self.increasingIndex = ( self.increasingIndex + 1 ) % len( self.increasingSequence )
+          self.increasing = self.increasingSequence[ self.increasingIndex ]
+          self.changingColor0[0] = self.clamp( 0, self.changingColor0[0], 255 )
+          self.changingColor0[1] = self.clamp( 0, self.changingColor0[1], 255 )
+          self.changingColor0[2] = self.clamp( 0, self.changingColor0[2], 255 )
+      else:
+        self.shadesOfColor( self.changingColor0, self.wid0, "left" )
+        self.shadesOfColor( self.changingColor1, self.wid1, "right" )
+        self.shadesOfColor( self.changingColor2, self.wid3, "right" )
+        self.shadesOfColor( self.changingColor3, self.wid4, "center" )
+        self.shadesOfColor( self.changingColor4, self.wid2, "left" )
+
+    def clamp( self, minimum, x, maximum ):
+        return max( minimum, min( x, maximum ) )
 
 
     def numberIsColorMethod( self ):
