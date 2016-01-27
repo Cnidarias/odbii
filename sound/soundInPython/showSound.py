@@ -3,14 +3,20 @@ from PyQt4 import QtGui as qt
 from PyQt4 import QtCore as qtc
 import subprocess
 
-import soundProcessor
+import matplotlib.pyplot as plt
+from scipy.fftpack import fft
 
+from sfft import getHZfromSample
+
+import soundProcessor
 
 class CarColorChanger(qt.QWidget):
     
     def __init__(self , data ):
         super(CarColorChanger, self).__init__()
         self.data = data
+
+        self.mkHz = getHZfromSample()
 
         self.task = soundProcessor.getSound( data )
         self.task.daemon = True
@@ -21,6 +27,9 @@ class CarColorChanger(qt.QWidget):
 
         self.MIN = -800
         self.MAX = 200
+
+
+        self.freqRatioBase = 1500
 
         
         self.changingColor0 = [255, 0, 0]
@@ -90,20 +99,39 @@ class CarColorChanger(qt.QWidget):
       #self.numberIsColorMethod()
       #self.shadesOfColor( ( 0, 255, 0 ) )
       self.shadesOfColorCircle()
+      #self.blackWhiteFreq()
 
     
 
-    def rangeOfColors( self ):
-      pass
+    def blackWhiteFreq( self ):
+      freq = self.mkHz.getHz( self.data['all'], 44100 )
+      ratio =  freq / 2500.0
+      r = 255 * ratio
+      g = 255 * ratio
+      b = 255 * ratio
+
+      self.changeWidgetColor( self.wid0, r, g, b )
+      self.changeWidgetColor( self.wid2, r, g, b )
+
+      self.changeWidgetColor( self.wid1, r, g, b )
+      self.changeWidgetColor( self.wid3, r, g, b )
+
+      self.changeWidgetColor( self.wid4, r, g, b )
+
+
       
 
 
     def shadesOfColor( self, color, widget = None, side = None ):
+      freqL = self.mkHz.getHz( self.data['leftAll'], 44100 )
+      freqR = self.mkHz.getHz( self.data['rightAll'], 44100 )
+
       r = color[0]
       g = color[1]
       b = color[2]
 
-      ratioL = float( ( self.data['left'] - self.MIN ) / float(self.MAX - self.MIN) )
+      #ratioL = float( ( self.data['left'] - self.MIN ) / float(self.MAX - self.MIN) )
+      ratioL = float( freqL / float( self.freqRatioBase ) )
       if ratioL < 0: ratioL = 0
       if ratioL > 1: ratioL = 1
 
@@ -111,7 +139,8 @@ class CarColorChanger(qt.QWidget):
       leftG = ratioL * g
       leftB = ratioL * b
 
-      ratioR = float( ( self.data['right'] - self.MIN ) / float(self.MAX - self.MIN) )
+      #ratioR = float( ( self.data['right'] - self.MIN ) / float(self.MAX - self.MIN) )
+      ratioR = float( freqR / float( self.freqRatioBase ) )
       if ratioR < 0: ratioR = 0
       if ratioR > 1: ratioR = 1
       

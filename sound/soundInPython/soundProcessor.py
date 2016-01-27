@@ -15,15 +15,15 @@ class getSound( threading.Thread ):
 
     self.stream = self.p.open( format = self.p.get_format_from_width( 2 ),
         channels = 2,
-        rate = 26000,
+        rate = 44100,
         input = True,
         output = False,
-        frames_per_buffer = 2048 )
+        frames_per_buffer = 512 )
 
   def run( self ):
     while True:
-      soundData = self.stream.read( 2048 )
-      r = unpack( '4096h', soundData )
+      soundData = self.stream.read( 512 )
+      r = unpack( '1024h', soundData )
       i = 0
       left = 0
       right = 0
@@ -31,11 +31,25 @@ class getSound( threading.Thread ):
         left += r[i]
         right += r[i+1]
         i += 2
-      left /= len( r )/2
-      right /= len( r )/2
 
+      j = 0
+
+      l = b''
+      r = b''
+      while j < len( soundData ):
+        l += soundData[j:j+2]
+        r += soundData[j+2:j+4]
+        j += 4
+
+
+      left = left / ( len( r ) / 2 )
+      right = right / ( len( r ) / 2 )
+
+      self.data['leftAll'] = l
+      self.data['rightAll'] = r
       self.data['left'] = left
       self.data['right'] = right
+      self.data['all'] = soundData
 
 
 def main():
