@@ -8,42 +8,233 @@ from base64 import b64decode
 
 import soundProcessor
 
+
+class getRGB():
+  def __init__( self ):
+    self.mkHz = getHZfromSample()
+    
+    
+    self.max = 0
+    self.min = 0
+    
+    self.MIN = -800
+    self.MAX = 200
+    
+    
+    self.freqRatioBase = 350
+    
+    
+    self.changingColor0 = [255, 0, 0]
+    self.changingColor1 = [255, 0, 0]
+    self.changingColor2 = [255, 0, 0]
+    self.changingColor3 = [255, 0, 0]
+    self.changingColor4 = [255, 0, 0]
+    self.increasingIndex = 0
+    self.increasing = "G"
+    self.increasingSequence = "GrBgRb"
+    self.increasingRate = 20
+    self.timerChange = 0
+    self.timerAmount = 100
+    self.counter = 0
+
+
+
+    self.colors = [
+        [0,0,0],
+        [0,0,0],
+        [0,0,0],
+        [0,0,0],
+        [0,0,0]
+        ]
+
+
+
+  def blackWhiteFreq( self, data ):
+    freq = self.mkHz.getHz( data['all'], 44100 )
+    ratio =  freq / 2500.0
+    r = 255 * ratio
+    g = 255 * ratio
+    b = 255 * ratio
+
+    for strip in self.colors:
+      strip[0] = r
+      strip[1] = g
+      strip[2] = b
+    return self.colors
+    
+
+  def colorsForFreq( self, data ):
+    freqL = self.mkHz.getHz( data['leftAll'], 44100 )
+    freqR = self.mkHz.getHz( data['rightAll'], 44100 )
+    pass
+
+
+  def shadesOfColor( self, color, data, colorIndex = -1, noSound = False ):
+    if not noSound:
+      freqL = self.mkHz.getHz( b64decode( data['leftAll'] ), 44100 )
+      freqR = self.mkHz.getHz( b64decode( data['rightAll'] ), 44100 )
+
+      ratioL = float( freqL / float( self.freqRatioBase ) )
+      if ratioL < 0: ratioL = 0
+      if ratioL > 1: ratioL = 1
+
+      ratioR = float( freqR / float( self.freqRatioBase ) )
+      if ratioR < 0: ratioR = 0
+      if ratioR > 1: ratioR = 1
+
+    else:
+      ratioL = 1
+      ratioR = 1
+
+
+    r = color[0]
+    g = color[1]
+    b = color[2]
+
+    
+    leftR = ratioL * r
+    leftG = ratioL * g
+    leftB = ratioL * b
+
+    rightR = ratioR * r
+    rightG = ratioR * g
+    rightB = ratioR * b
+
+
+    leftR = self.clamp( 0, leftR, 255 )
+    leftG = self.clamp( 0, leftG, 255 )
+    leftB = self.clamp( 0, leftB, 255 )
+
+    rightR = self.clamp( 0, rightR, 255 )
+    rightG = self.clamp( 0, rightG, 255 )
+    rightB = self.clamp( 0, rightB, 255 )
+
+
+    if colorIndex < 0:
+      self.setColorFromStereo( leftR, leftG, leftB, rightR, rightG, rightB )
+      return self.colors
+    else:
+      self.setSpecificColor( leftR, leftG, leftB, rightR, rightG, rightB, colorIndex )
+
+
+
+  def setSpecificColor ( self, lR, lG, lB, rR, rG, rB, index ):
+    if index == 4:
+      self.colors[index][0] = (lR + rR) / 2.0
+      self.colors[index][1] = (lG + rG) / 2.0
+      self.colors[index][2] = (lB + rB) / 2.0
+    elif index % 2 == 0:
+      self.colors[index][0] = lR
+      self.colors[index][1] = lG
+      self.colors[index][2] = lB
+    else:
+      self.colors[index][0] = rR
+      self.colors[index][1] = rG
+      self.colors[index][2] = rB
+
+
+
+
+  def setColorFromStereo( self, lR, lG, lB, rR, rG, rB ):
+    self.colors[0][0] = lR
+    self.colors[0][1] = lG
+    self.colors[0][2] = lB
+
+    self.colors[1][0] = rR
+    self.colors[1][1] = rG
+    self.colors[1][2] = rB
+
+    self.colors[2][0] = lR
+    self.colors[2][1] = lG
+    self.colors[2][2] = lB
+
+    self.colors[3][0] = rR
+    self.colors[3][1] = rG
+    self.colors[3][2] = rB
+
+    self.colors[4][0] = (lR + rR) / 2.0 
+    self.colors[4][1] = (lG + rG) / 2.0  
+    self.colors[4][2] = (lB + rB) / 2.0 
+
+    
+    
+
+  def shadesOfColorCircle( self, data, noSound = False ):
+    self.timerChange += 1
+    if self.timerChange >= self.timerAmount:
+      self.timerChange = 0
+
+      self.changingColor1[0] = self.changingColor2[0]
+      self.changingColor1[1] = self.changingColor2[1]
+      self.changingColor1[2] = self.changingColor2[2]
+
+      self.changingColor2[0] = self.changingColor3[0]
+      self.changingColor2[1] = self.changingColor3[1]
+      self.changingColor2[2] = self.changingColor3[2]
+
+      self.changingColor3[0] = self.changingColor4[0]
+      self.changingColor3[1] = self.changingColor4[1]
+      self.changingColor3[2] = self.changingColor4[2]
+
+      self.changingColor4[0] = self.changingColor0[0]
+      self.changingColor4[1] = self.changingColor0[1]
+      self.changingColor4[2] = self.changingColor0[2]
+
+      if self.increasing == "R": self.changingColor0[0] += self.increasingRate
+      elif self.increasing == "r": self.changingColor0[0] -= self.increasingRate
+      elif self.increasing == "G": self.changingColor0[1] += self.increasingRate
+      elif self.increasing == "g": self.changingColor0[1] -= self.increasingRate
+      elif self.increasing == "B": self.changingColor0[2] += self.increasingRate
+      elif self.increasing == "b": self.changingColor0[2] -= self.increasingRate
+
+
+      self.shadesOfColor( self.changingColor0, data, 0, noSound )
+      self.shadesOfColor( self.changingColor1, data, 1, noSound )
+      self.shadesOfColor( self.changingColor2, data, 3, noSound )
+      self.shadesOfColor( self.changingColor3, data, 4, noSound )
+      self.shadesOfColor( self.changingColor4, data, 2, noSound )
+
+      self.counter += self.increasingRate
+
+      if self.counter >= 255:
+        self.counter = 0
+        self.increasingIndex = ( self.increasingIndex + 1 ) % len( self.increasingSequence )
+        self.increasing = self.increasingSequence[ self.increasingIndex ]
+        self.changingColor0[0] = self.clamp( 0, self.changingColor0[0], 255 )
+        self.changingColor0[1] = self.clamp( 0, self.changingColor0[1], 255 )
+        self.changingColor0[2] = self.clamp( 0, self.changingColor0[2], 255 )
+    else:
+      self.shadesOfColor( self.changingColor0, data, 0, noSound )
+      self.shadesOfColor( self.changingColor1, data, 1, noSound )
+      self.shadesOfColor( self.changingColor2, data, 3, noSound )
+      self.shadesOfColor( self.changingColor3, data, 4, noSound )
+      self.shadesOfColor( self.changingColor4, data, 2, noSound )
+
+
+    return self.colors
+
+
+
+  def clamp( self, minimum, x, maximum ):
+      return max( minimum, min( x, maximum ) )
+
+
+
+
+
 class CarColorChanger(qt.QWidget):
     
     def __init__(self , data ):
         super(CarColorChanger, self).__init__()
         self.data = data
 
-        self.mkHz = getHZfromSample()
-
         self.task = soundProcessor.getSound( data )
         self.task.daemon = True
         self.task.start()
 
-        self.max = 0
-        self.min = 0
-
-        self.MIN = -800
-        self.MAX = 200
-
-
-        self.freqRatioBase = 350
-
-        
-        self.changingColor0 = [255, 0, 0]
-        self.changingColor1 = [255, 0, 0]
-        self.changingColor2 = [255, 0, 0]
-        self.changingColor3 = [255, 0, 0]
-        self.changingColor4 = [255, 0, 0]
-        self.increasingIndex = 0
-        self.increasing = "G"
-        self.increasingSequence = "GrBgRb"
-        self.increasingRate = 20
-        self.timerChange = 0
-        self.timerAmount = 100
-        self.counter = 0
-
         self.initUI()
+        self.colorMaker = getRGB()
+        self.colors = None
         
     def initUI(self):
         grid = qt.QGridLayout()
@@ -86,177 +277,20 @@ class CarColorChanger(qt.QWidget):
  
 
     def custUpdate( self ):
-      if self.data['left'] > self.max: self.max = self.data['left']  
-      if self.data['left'] < self.min: self.min = self.data['left']  
 
-      if self.data['left'] == self.min or self.data['left'] == self.max:
-          #print "MAX: " + str( self.max ) + "\nMIN: " + str( self.min ) + "\n"
-          pass
+      self.color = self.colorMaker.shadesOfColorCircle( self.data, True )
 
+      self.changeWidgetColor( self.wid0, self.color[0][0], self.color[0][1], self.color[0][2] )
+      self.changeWidgetColor( self.wid1, self.color[1][0], self.color[1][1], self.color[1][2] )
 
-      #self.numberIsColorMethod()
-      #self.shadesOfColor( ( 0, 255, 0 ) )
-      self.shadesOfColorCircle()
-      #self.blackWhiteFreq()
+      self.changeWidgetColor( self.wid2, self.color[2][0], self.color[2][1], self.color[2][2] )
+      self.changeWidgetColor( self.wid3, self.color[3][0], self.color[3][1], self.color[3][2] )
+
+      self.changeWidgetColor( self.wid4, self.color[4][0], self.color[4][1], self.color[4][2] )
 
     
 
-    def blackWhiteFreq( self ):
-      freq = self.mkHz.getHz( self.data['all'], 44100 )
-      ratio =  freq / 2500.0
-      r = 255 * ratio
-      g = 255 * ratio
-      b = 255 * ratio
-
-      self.changeWidgetColor( self.wid0, r, g, b )
-      self.changeWidgetColor( self.wid2, r, g, b )
-
-      self.changeWidgetColor( self.wid1, r, g, b )
-      self.changeWidgetColor( self.wid3, r, g, b )
-
-      self.changeWidgetColor( self.wid4, r, g, b )
-
-
-    def colorsForFreq( self ):
-        freqL = self.mkHz.getHz( self.data['leftAll'], 44100 )
-        freqR = self.mkHz.getHz( self.data['rightAll'], 44100 )
-
-        
-
-        
-
-
-
-      
-
-
-    def shadesOfColor( self, color, widget = None, side = None ):
-      freqL = self.mkHz.getHz( b64decode( self.data['leftAll'] ), 44100 )
-      freqR = self.mkHz.getHz( b64decode( self.data['rightAll'] ), 44100 )
-
-      r = color[0]
-      g = color[1]
-      b = color[2]
-
-      #ratioL = float( ( self.data['left'] - self.MIN ) / float(self.MAX - self.MIN) )
-      ratioL = float( freqL / float( self.freqRatioBase ) )
-      if ratioL < 0: ratioL = 0
-      if ratioL > 1: ratioL = 1
-      ratioL = 1
-
-      leftR = ratioL * r
-      leftG = ratioL * g
-      leftB = ratioL * b
-
-      #ratioR = float( ( self.data['right'] - self.MIN ) / float(self.MAX - self.MIN) )
-      ratioR = float( freqR / float( self.freqRatioBase ) )
-      if ratioR < 0: ratioR = 0
-      if ratioR > 1: ratioR = 1
-      ratioR = 1
-      
-      rightR = ratioR * r
-      rightG = ratioR * g
-      rightB = ratioR * b
-
-
-      leftR = self.clamp( 0, leftR, 255 )
-      leftG = self.clamp( 0, leftG, 255 )
-      leftB = self.clamp( 0, leftB, 255 )
-
-      rightR = self.clamp( 0, rightR, 255 )
-      rightG = self.clamp( 0, rightG, 255 )
-      rightB = self.clamp( 0, rightB, 255 )
-      
-      
-      if widget == None:
-        self.changeWidgetColor( self.wid0, leftR, leftG, leftB )
-        self.changeWidgetColor( self.wid2, leftR, leftG, leftB )
-
-        self.changeWidgetColor( self.wid1, rightR, rightG, rightB )
-        self.changeWidgetColor( self.wid3, rightR, rightG, rightB )
-
-        self.changeWidgetColor( self.wid4, (leftR + rightR)/2, (leftG + rightG)/2, (leftB + rightB)/2 )
-
-      else:
-        if side == "left": self.changeWidgetColor( widget, leftR, leftG, leftB )
-        elif side == "right" : self.changeWidgetColor( widget, rightR, rightG, rightB )
-        elif side == "center" : self.changeWidgetColor( widget, (leftR + rightR)/2, (leftG + rightG)/2, (leftB + rightB)/2 )
-
-
-    def shadesOfColorCircle( self ):
-      self.timerChange += 1
-      if self.timerChange >= self.timerAmount:
-        self.timerChange = 0
-
-        self.changingColor1[0] = self.changingColor2[0]
-        self.changingColor1[1] = self.changingColor2[1]
-        self.changingColor1[2] = self.changingColor2[2]
-
-        self.changingColor2[0] = self.changingColor3[0]
-        self.changingColor2[1] = self.changingColor3[1]
-        self.changingColor2[2] = self.changingColor3[2]
-
-        self.changingColor3[0] = self.changingColor4[0]
-        self.changingColor3[1] = self.changingColor4[1]
-        self.changingColor3[2] = self.changingColor4[2]
-
-        self.changingColor4[0] = self.changingColor0[0]
-        self.changingColor4[1] = self.changingColor0[1]
-        self.changingColor4[2] = self.changingColor0[2]
-
-        if self.increasing == "R": self.changingColor0[0] += self.increasingRate
-        elif self.increasing == "r": self.changingColor0[0] -= self.increasingRate
-        elif self.increasing == "G": self.changingColor0[1] += self.increasingRate
-        elif self.increasing == "g": self.changingColor0[1] -= self.increasingRate
-        elif self.increasing == "B": self.changingColor0[2] += self.increasingRate
-        elif self.increasing == "b": self.changingColor0[2] -= self.increasingRate
-
-
-        self.shadesOfColor( self.changingColor0, self.wid0, "left" )
-        self.shadesOfColor( self.changingColor1, self.wid1, "right" )
-        self.shadesOfColor( self.changingColor2, self.wid3, "right" )
-        self.shadesOfColor( self.changingColor3, self.wid4, "center" )
-        self.shadesOfColor( self.changingColor4, self.wid2, "left" )
-
-        self.counter += self.increasingRate
-
-        if self.counter >= 255:
-          self.counter = 0
-          self.increasingIndex = ( self.increasingIndex + 1 ) % len( self.increasingSequence )
-          self.increasing = self.increasingSequence[ self.increasingIndex ]
-          self.changingColor0[0] = self.clamp( 0, self.changingColor0[0], 255 )
-          self.changingColor0[1] = self.clamp( 0, self.changingColor0[1], 255 )
-          self.changingColor0[2] = self.clamp( 0, self.changingColor0[2], 255 )
-      else:
-        self.shadesOfColor( self.changingColor0, self.wid0, "left" )
-        self.shadesOfColor( self.changingColor1, self.wid1, "right" )
-        self.shadesOfColor( self.changingColor2, self.wid3, "right" )
-        self.shadesOfColor( self.changingColor3, self.wid4, "center" )
-        self.shadesOfColor( self.changingColor4, self.wid2, "left" )
-
-    def clamp( self, minimum, x, maximum ):
-        return max( minimum, min( x, maximum ) )
-
-
-    def numberIsColorMethod( self ):
-      leftR = ( self.data['left'] >> 0 ) & 0xff
-      leftG = ( self.data['left'] >> 5 ) & 0xff
-      leftB = ( self.data['left'] >> 11 ) & 0xff
-
-      rightR = ( self.data['right'] >> 0 ) & 0xff
-      rightG = ( self.data['right'] >> 5 ) & 0xff
-      rightB = ( self.data['right'] >> 11 ) & 0xff
-
-
-      self.changeWidgetColor( self.wid0, leftR, leftG, leftB )
-      self.changeWidgetColor( self.wid2, leftR, leftG, leftB )
-
-      self.changeWidgetColor( self.wid1, rightR, rightG, rightB )
-      self.changeWidgetColor( self.wid3, rightR, rightG, rightB )
-
-      self.changeWidgetColor( self.wid4, (leftR + rightR)/2, (leftG + rightG)/2, (leftB + rightB)/2 )
-
-
+    
 
 
     def changeWidgetColor( self, widget, r, g, b ):
@@ -265,6 +299,11 @@ class CarColorChanger(qt.QWidget):
       p.setColor( widget.backgroundRole(), qt.QColor( r, g, b ) )
       widget.setPalette( p )
         
+
+
+
+
+
 def main( data ):
     app = qt.QApplication(sys.argv)
     ex = CarColorChanger( data )
