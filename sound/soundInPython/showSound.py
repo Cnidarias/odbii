@@ -3,10 +3,8 @@ from PyQt4 import QtGui as qt
 from PyQt4 import QtCore as qtc
 import subprocess
 
-import matplotlib.pyplot as plt
-from scipy.fftpack import fft
-
 from sfft import getHZfromSample
+from base64 import b64decode
 
 import soundProcessor
 
@@ -29,7 +27,7 @@ class CarColorChanger(qt.QWidget):
         self.MAX = 200
 
 
-        self.freqRatioBase = 1500
+        self.freqRatioBase = 350
 
         
         self.changingColor0 = [255, 0, 0]
@@ -40,9 +38,9 @@ class CarColorChanger(qt.QWidget):
         self.increasingIndex = 0
         self.increasing = "G"
         self.increasingSequence = "GrBgRb"
-        self.increasingRate = 80
+        self.increasingRate = 20
         self.timerChange = 0
-        self.timerAmount = 10
+        self.timerAmount = 100
         self.counter = 0
 
         self.initUI()
@@ -119,12 +117,22 @@ class CarColorChanger(qt.QWidget):
       self.changeWidgetColor( self.wid4, r, g, b )
 
 
+    def colorsForFreq( self ):
+        freqL = self.mkHz.getHz( self.data['leftAll'], 44100 )
+        freqR = self.mkHz.getHz( self.data['rightAll'], 44100 )
+
+        
+
+        
+
+
+
       
 
 
     def shadesOfColor( self, color, widget = None, side = None ):
-      freqL = self.mkHz.getHz( self.data['leftAll'], 44100 )
-      freqR = self.mkHz.getHz( self.data['rightAll'], 44100 )
+      freqL = self.mkHz.getHz( b64decode( self.data['leftAll'] ), 44100 )
+      freqR = self.mkHz.getHz( b64decode( self.data['rightAll'] ), 44100 )
 
       r = color[0]
       g = color[1]
@@ -134,6 +142,7 @@ class CarColorChanger(qt.QWidget):
       ratioL = float( freqL / float( self.freqRatioBase ) )
       if ratioL < 0: ratioL = 0
       if ratioL > 1: ratioL = 1
+      ratioL = 1
 
       leftR = ratioL * r
       leftG = ratioL * g
@@ -143,6 +152,7 @@ class CarColorChanger(qt.QWidget):
       ratioR = float( freqR / float( self.freqRatioBase ) )
       if ratioR < 0: ratioR = 0
       if ratioR > 1: ratioR = 1
+      ratioR = 1
       
       rightR = ratioR * r
       rightG = ratioR * g

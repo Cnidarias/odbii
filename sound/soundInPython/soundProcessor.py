@@ -3,8 +3,14 @@ import os
 import time
 import threading
 import pyaudio
+
+from socket import *
+import json
+
 from struct import *
 from numpy import mean
+
+from base64 import b64encode
 
 class getSound( threading.Thread ):
   def __init__( self, data ):
@@ -12,6 +18,12 @@ class getSound( threading.Thread ):
 
     self.data = data 
     self.p = pyaudio.PyAudio()
+
+
+    self.cs = socket( AF_INET, SOCK_DGRAM )
+    self.IP = "192.168.178.29"
+    self.PORT = 12345
+
 
     self.stream = self.p.open( format = self.p.get_format_from_width( 2 ),
         channels = 2,
@@ -37,19 +49,17 @@ class getSound( threading.Thread ):
       l = b''
       r = b''
       while j < len( soundData ):
-        l += soundData[j:j+2]
-        r += soundData[j+2:j+4]
+        r += soundData[j:j+2]
+        l += soundData[j+2:j+4]
         j += 4
 
 
       left = left / ( len( r ) / 2 )
       right = right / ( len( r ) / 2 )
 
-      self.data['leftAll'] = l
-      self.data['rightAll'] = r
-      self.data['left'] = left
-      self.data['right'] = right
-      self.data['all'] = soundData
+      self.data['leftAll'] = b64encode( l )
+      self.data['rightAll'] = b64encode( r )
+      self.cs.sendto( json.dumps( self.data ), ( self.IP, self.PORT ) )
 
 
 def main():
