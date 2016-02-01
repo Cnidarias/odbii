@@ -8,6 +8,8 @@ from base64 import b64decode
 
 import soundProcessor
 
+import math
+
 
 class getRGB():
   def __init__( self ):
@@ -74,8 +76,21 @@ class getRGB():
       #freqL = self.mkHz.getHz( b64decode( data['leftAll'] ), 44100 )
       #freqR = self.mkHz.getHz( b64decode( data['rightAll'] ), 44100 )
 
-      freqL = int( data['leftAll'] )
-      freqR = int( data['rightAll'] )
+
+      freqL =  data['leftAll']
+      freqR =  data['rightAll'] 
+
+      if math.isnan( float( freqL ) ):
+          freqL = 0
+      else:
+          freqL = int( freqL )
+
+
+      if math.isnan( float( freqR ) ):
+          freqR = 0
+      else:
+          freqR = int( freqR )
+
 
       ratioL = float( freqL / float( self.freqRatioBase ) )
       if ratioL < 0: ratioL = 0
@@ -84,6 +99,12 @@ class getRGB():
       ratioR = float( freqR / float( self.freqRatioBase ) )
       if ratioR < 0: ratioR = 0
       if ratioR > 1: ratioR = 1
+
+
+      #test on loudness
+
+      ratioL = float( data['loudness'] ) / 12000.0
+      ratioR = float( data['loudness'] ) / 15000.0
 
     else:
       ratioL = 1

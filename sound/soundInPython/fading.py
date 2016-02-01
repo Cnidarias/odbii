@@ -34,7 +34,7 @@
 # The Pins. Use Broadcom numbers.
 RED_PIN   = 17
 GREEN_PIN = 22
-BLUE_PIN  = 24
+BLUE_PIN  = 27
 
 # Number of color changes per step (more is faster, less is slower).
 # You also can use 0.X floats.
