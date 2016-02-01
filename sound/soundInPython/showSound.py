@@ -18,10 +18,10 @@ class getRGB():
     self.min = 0
     
     self.MIN = -800
-    self.MAX = 200
+    self.MAX = 800
     
     
-    self.freqRatioBase = 350
+    self.freqRatioBase = 550
     
     
     self.changingColor0 = [255, 0, 0]
@@ -34,7 +34,7 @@ class getRGB():
     self.increasingSequence = "GrBgRb"
     self.increasingRate = 20
     self.timerChange = 0
-    self.timerAmount = 100
+    self.timerAmount = 10
     self.counter = 0
 
 
@@ -71,8 +71,11 @@ class getRGB():
 
   def shadesOfColor( self, color, data, colorIndex = -1, noSound = False ):
     if not noSound:
-      freqL = self.mkHz.getHz( b64decode( data['leftAll'] ), 44100 )
-      freqR = self.mkHz.getHz( b64decode( data['rightAll'] ), 44100 )
+      #freqL = self.mkHz.getHz( b64decode( data['leftAll'] ), 44100 )
+      #freqR = self.mkHz.getHz( b64decode( data['rightAll'] ), 44100 )
+
+      freqL = int( data['leftAll'] )
+      freqR = int( data['rightAll'] )
 
       ratioL = float( freqL / float( self.freqRatioBase ) )
       if ratioL < 0: ratioL = 0

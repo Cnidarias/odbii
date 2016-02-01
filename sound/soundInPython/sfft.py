@@ -7,7 +7,6 @@ import numpy as np
 import time
 
 
-import soundProcessor
 
 class getHZfromSample:
     def __init__( self ):
@@ -49,4 +48,5 @@ def main():
 
 
 if __name__ == '__main__':
+    import soundProcessor
     main()

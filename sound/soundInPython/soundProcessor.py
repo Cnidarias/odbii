@@ -11,6 +11,7 @@ from struct import *
 from numpy import mean
 
 from base64 import b64encode
+from sfft import getHZfromSample
 
 class getSound( threading.Thread ):
   def __init__( self, data ):
@@ -18,6 +19,9 @@ class getSound( threading.Thread ):
 
     self.data = data 
     self.p = pyaudio.PyAudio()
+
+
+    self.mkHz = getHZfromSample()
 
 
     self.cs = socket( AF_INET, SOCK_DGRAM )
@@ -57,8 +61,15 @@ class getSound( threading.Thread ):
       left = left / ( len( r ) / 2 )
       right = right / ( len( r ) / 2 )
 
-      self.data['leftAll'] = b64encode( l )
-      self.data['rightAll'] = b64encode( r )
+
+      lfreq = self.mkHz.getHz( l, 44100 )
+      rfreq = self.mkHz.getHz( r, 44100 )
+
+      #self.data['leftAll'] = b64encode( l )
+      #self.data['rightAll'] = b64encode( r )
+
+      self.data['leftAll'] = lfreq
+      self.data['rightAll'] = rfreq
       self.cs.sendto( json.dumps( self.data ), ( self.IP, self.PORT ) )
 
 

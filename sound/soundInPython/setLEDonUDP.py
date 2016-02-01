@@ -1,6 +1,7 @@
 import select, socket
 import time
 import json
+import pigpio
 
 import threading
 
@@ -9,57 +10,56 @@ from sfft import getHZfromSample
 from showSound import getRGB
 
 class LEDsetter:
-    def __init__( self ):
-       self.setUpGPIO() 
-        self.pins = [
-            [[ 27, 0 ], [ 17, 0 ], [ 22, 0 ]], 
-            [[ -1, 0 ], [ -1, 0 ], [ -1, 0 ]],
-            [[ -1, 0 ], [ -1, 0 ], [ -1, 0 ]],
-            [[ -1, 0 ], [ -1, 0 ], [ -1, 0 ]],
-            [[ -1, 0 ], [ -1, 0 ], [ -1, 0 ]]
-            ]
+  def __init__( self ):
+    self.pins = [
+      [[ 27, 0 ], [ 17, 0 ], [ 22, 0 ]], 
+      [[ -1, 0 ], [ -1, 0 ], [ -1, 0 ]],
+      [[ -1, 0 ], [ -1, 0 ], [ -1, 0 ]],
+      [[ -1, 0 ], [ -1, 0 ], [ -1, 0 ]],
+      [[ -1, 0 ], [ -1, 0 ], [ -1, 0 ]]
+      ]
 
-        self.pi = pigpio.pi[]
-
-
-    def getPinLayout( self ):
-      return self.pins 
-
-    def setColorOfPin( self, pin, brightness ):
-      if pin == -1: return 
-      if brightness > 255: brightness = 255
-      elif brightness < 0: brightness = 0
-
-      self.set_PWM_dutycycle( pin, brightness )
+    self.pi = pigpio.pi()
 
 
-    def updateAll( self ):
-      for strip in self.pins:
-        r,g,b = strip
-        self.setColorOfPin( r[0], r[1] )
-        self.setColorOfPin( g[0], g[1] )
-        self.setColorOfPin( b[0], b[1] )
+  def getPinLayout( self ):
+    return self.pins 
+
+  def setColorOfPin( self, pin, brightness ):
+    if pin == -1: return 
+    if brightness > 255: brightness = 255
+    elif brightness < 0: brightness = 0
+
+    self.pi.set_PWM_dutycycle( pin, brightness )
 
 
-    def setColorMatrix( self, colors ):
-      i = 0
-      for strip in self.pins:
-        strip[0][1] = colors[i][0]
-        strip[1][1] = colors[i][1]
-        strip[2][1] = colors[i][2]
-        i += 1
+  def updateAll( self ):
+    for strip in self.pins:
+      r,g,b = strip
+      self.setColorOfPin( r[0], r[1] )
+      self.setColorOfPin( g[0], g[1] )
+      self.setColorOfPin( b[0], b[1] )
+
+
+  def setColorMatrix( self, colors ):
+    i = 0
+    for strip in self.pins:
+      strip[0][1] = colors[i][0]
+      strip[1][1] = colors[i][1]
+      strip[2][1] = colors[i][2]
+      i += 1
 
 
 
-    
+  
 class getDataOverUDP():
-  def __init__():
+  def __init__( self ):
     self.ledSetter = LEDsetter()
     self.rgbGetter = getRGB()
     self.colors = None
 
     self.PORT = 12345
-    self.IP  = "127.0.0.1"
+    self.IP  = "0.0.0.0"
     self.bufferSize = 4096
     self.s = socket.socket( socket.AF_INET, socket.SOCK_DGRAM )
     self.s.bind( ( self.IP, self.PORT ) )
