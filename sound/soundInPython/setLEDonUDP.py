@@ -79,5 +79,4 @@ class getDataOverUDP():
 
 
 if __name__ == '__main__':
-    #ex = LEDsetter()
     ex = getDataOverUDP()
