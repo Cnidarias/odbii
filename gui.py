@@ -2,6 +2,7 @@ import os
 import sys
 import time
 import random
+import sip
 
 import subprocess
 
@@ -59,6 +60,8 @@ class GUI( qt.QWidget ):
         self.setGeometry( 0, 0, 840, 480 )
         self.setWindowTitle( 'Board Computer' )
         self.setStyleSheet( "background-color:#ccc;" )
+
+
         self.availableSpace =  8 * self.width() / 8
         self.margin = self.width() / 8
         self.addGraphs()
@@ -86,15 +89,20 @@ class GUI( qt.QWidget ):
         process.startDetached("navit")
 
 
-
-    def initSpotify( self ):
+    def initSpotifyPlaylist( self ):
         playLists = self.spotify.do_get_Playlist()
 
         self.spotifyContainer = qt.QWidget()
         self.spotifyContainer.show()
-        
+         
+        self.masterContainer = qt.QWidget( self )
+        self.masterContainer.resize( 504, 360 )
+        self.masterContainer.move( 168, 120 )
+        self.masterContainer.show()
+
+       
         self.spotifyLayout = qt.QFormLayout()
-        fontUnit = qt.QFont( "Arial", 35, qt.QFont.Bold )
+        fontUnit = qt.QFont( "Arial", 20, qt.QFont.Bold )
 
         for ele in playLists:
             widget = ExtendedQLabel( self.spotifyContainer )
@@ -108,20 +116,31 @@ class GUI( qt.QWidget ):
         scroll = qt.QScrollArea()
         scroll.setWidget( self.spotifyContainer )
         scroll.setWidgetResizable( True )
-        scroll.setFixedHeight( 280 )
         scroll.setWidget( self.spotifyContainer )
 
         scroll.verticalScrollBar().setFixedWidth( 30 )
 
-        pLayout = qt.QVBoxLayout( self )
-        pLayout.setSpacing( 1 )
+        pLayout = qt.QVBoxLayout( self.masterContainer )
         pLayout.setAlignment( qtc.Qt.AlignCenter )
-        pLayout.setContentsMargins( 70, 0, 70, 0 )
-        #pLayout.addWidget( scroll )
-        #pLayout.setMargin( 70 )
+        pLayout.addWidget( scroll )
 
 
 
+    def showSpotifyPlayList( self ):
+        self.masterContainer.show()
+
+
+    def showCurrentSong( self ):
+        self.masterContainer.hide()
+
+
+    def initSpotify( self ):
+        playLists = self.spotify.do_get_Playlist()
+
+        self.initSpotifyPlaylist()
+
+        self.showCurrentSong()
+      
         nextButton = qt.QPushButton( "Next", self )
         nextButton.setFixedHeight( 50 )
         nextButton.clicked.connect( self.nextSpotify )
@@ -150,9 +169,6 @@ class GUI( qt.QWidget ):
         playListButton.resize( 100, 50 )
         playListButton.move( 34, 410 )
         playListButton.show();
-
-
-
 
 
         testLine2 = qt.QFrame( self )
@@ -187,12 +203,14 @@ class GUI( qt.QWidget ):
     def playSpotify( self ):
         return
 
+
+
     def showPlayList( self ):
         playLists = self.spotify.do_get_Playlist()
         for i in reversed( range( self.spotifyLayout.count() ) ):
             self.spotifyLayout.itemAt( i ).widget().setParent( None )
 
-        fontUnit = qt.QFont( "Arial", 35, qt.QFont.Bold )
+        fontUnit = qt.QFont( "Arial", 20, qt.QFont.Bold )
 
         for ele in playLists:
             widget = ExtendedQLabel( self.spotifyContainer )
@@ -201,6 +219,8 @@ class GUI( qt.QWidget ):
             widget.setFont( fontUnit )
             self.connect( widget, SIGNAL('clicked( QObject )'), self.playListClicked )
             self.spotifyLayout.addRow( widget )
+
+        self.showSpotifyPlayList()
         
 
 
