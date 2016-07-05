@@ -12,8 +12,8 @@ from PyQt4 import QtCore as qtc
 import pyqtgraph as pg
 
 
-from client import tester
 from extendedQLabel import *
+from sound.soundProcessor import getSound
 import kw1281Audi
 import spotifyPython
 
@@ -24,13 +24,22 @@ class GUI( qt.QWidget ):
 
         self.data = data
 
+        self.sound_data = {'left': 0, 'right': 0, 'type': 'data'}
+
         self.isDebug = True
         self.isFullScreenDebug = False
 
         self.task = kw1281Audi.kw1281( data )
         self.task.daemon = True
+
+        self.sound_processing_task = getSound(self.sound_data);
+        self.sound_processing_task.set_brightness(0)
+        self.sound_processing_task.daemon = True
+
         if self.isDebug is not True:
           self.task.start()
+          self.sound_processing_task.start()
+
 
         self.spotify = spotifyPython.Commander( False )
         self.spotify.do_relogin()

@@ -21,6 +21,7 @@ class LEDsetter:
 
     self.pi = pigpio.pi()
 
+    self.over_all_brightness = 255
 
   def getPinLayout( self ):
     return self.pins 
@@ -30,7 +31,7 @@ class LEDsetter:
     if brightness > 255: brightness = 255
     elif brightness < 0: brightness = 0
 
-    self.pi.set_PWM_dutycycle( pin, brightness )
+    self.pi.set_PWM_dutycycle( pin, brightness * (self.over_all_brightness/255) )
 
 
   def updateAll( self ):
@@ -59,22 +60,26 @@ class getDataOverUDP():
     self.colors = None
 
     self.PORT = 12345
-    self.IP  = "0.0.0.0"
+    self.IP = "0.0.0.0"
     self.bufferSize = 4096
     self.s = socket.socket( socket.AF_INET, socket.SOCK_DGRAM )
     self.s.bind( ( self.IP, self.PORT ) )
 
     self.getData()
-     
+
+  def process_command(self, data):
+    self.ledSetter.over_all_brightness = data['brightness']
+
   def getData( self ):
     while True:
       data, addr = self.s.recvfrom( self.bufferSize )
       jsonData = json.loads( data )
-      self.ledSetter.setColorMatrix( self.rgbGetter.shadesOfColorCircle( jsonData, False ) )
-      self.ledSetter.updateAll()
-      
-
-
+      if jsonData['type'] == 'data':
+        self.ledSetter.setColorMatrix( self.rgbGetter.shadesOfColorCircle( jsonData, False ) )
+        self.ledSetter.updateAll()
+      else:
+        self.process_command(jsonData)
+        self.s.sendto(json.dumps({'type': 'status_received'}), (self.IP, self.PORT))
 
 
 
