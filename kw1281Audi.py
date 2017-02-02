@@ -26,7 +26,7 @@ class kw1281(threading.Thread):
     except:
         if self.ser is not None:
             self.ser.close()
-        #raise
+        # raise
         return
 
 
@@ -297,11 +297,11 @@ class kw1281(threading.Thread):
               self.openECU(0x01)
               self.ecuOpen = 0x01
             self.sendACKBlock()
-            print self.readBlock()
+            print(self.readBlock())
             self.requestDataBlock(0x03)
-            print self.readBlock()
+            print(self.readBlock())
             self.requestDataBlock(0x0b)
-            print self.readBlock()
+            print(self.readBlock())
 
             #self.sendQuitBlock()
             #self.state = 2
@@ -311,9 +311,9 @@ class kw1281(threading.Thread):
               self.openECU(0x17)
               self.ecuOpen = 0x17
             self.sendACKBlock()
-            print self.readBlock()
+            print(self.readBlock())
             self.requestDataBlock(0x01)
-            print self.readBlock()
+            print(self.readBlock())
 
             #self.sendQuitBlock()
             #self.state = 1
@@ -359,22 +359,22 @@ class kw1281(threading.Thread):
 
       # Kennungs ID
   
-      print address
+      print(address)
 
       if address == 0x01:
         packet = self.ser.read(1)
         while ord(packet) != 0x8a:
           packet = self.ser.read(1)
-          print str(address) +"\t"+ str(ord(packet))
+          print(str(address) +"\t"+ str(ord(packet)))
       else:
         packet = self.ser.read(1)
         while ord(packet) != 0x8a:
           packet = self.ser.read(1)
-          print str(address) +"\t"+ str(ord(packet))
+          print(str(address) +"\t"+ str(ord(packet)))
         packet = self.ser.read(1)
         while ord(packet) != 0x8a:
           packet = self.ser.read(1)
-          print str(address) +"\t"+ str(ord(packet))
+          print(str(address) +"\t"+ str(ord(packet)))
       self.ser.write(self.bitFlip(ord(packet)))
       packet = self.ser.read(1) # always throws same packet back at us
   
@@ -384,13 +384,13 @@ class kw1281(threading.Thread):
       # it is finally done telling us who it is
       # then simply send another ACK block and start reading data - easy
       while message is not "ACK":
-        print  "This is a message" 
-        print message 
+        print("This is a message")
+        print(message)
         self.sendACKBlock() # self.send ack block confimration
         message = self.readBlock()
   
       self.sendACKBlock()
-      print self.readBlock()
+      print(self.readBlock())
 
       # NOW we have handeled basic communication -
       # We now self.send ACK commands back and forth - forever

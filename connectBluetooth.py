@@ -25,12 +25,12 @@ def readPacket():
             if lat is not None and lng is not None:
                 lat = lat[:2] + " " + lat[2:]
                 lng = lng[:3] + " " + lng[3:]
-                print lat, lng
+                print(lat, lng)
 
     except bluetooth.btcommon.BluetoothError as e:
-        print e
-        print "Lost connection!"
-        print "Retrying to get connection"
+        print(e)
+        print("Lost connection!")
+        print("Retrying to get connection")
         connectToDevice()
 
 
@@ -43,11 +43,11 @@ def connectToDevice():
         try:
             sock = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
             sock.connect((target_addr,port))
-            print "Connected - Now trying to read GPS data!"
+            print("Connected - Now trying to read GPS data!")
             readPacket()
             break
         except bluetooth.btcommon.BluetoothError as e:
-            print e
+            print(e)
             time.sleep(5)
                     
 
@@ -93,7 +93,7 @@ def convertGooglePolyLine(line):
             lng += result >> 1
 
 
-        print "{0:.5f}".format(lat / 100000.0), "{0:.5f}".format(lng / 100000.0)
+        print("{0:.5f}".format(lat / 100000.0), "{0:.5f}".format(lng / 100000.0))
 
 
 
@@ -116,12 +116,12 @@ r = requests.get("https://maps.googleapis.com/maps/api/directions/json?origin=50
 obj = json.loads(r.text)
 pprint(obj)
 
-print "\n\n\n"
+print("\n\n\n")
 convertGooglePolyLine("_p~iF~ps|U_ulLnnqC_mqNvxq`@")
-print "\n\n\n"
+print("\n\n\n")
 convertGooglePolyLine("yimrHg}ep@JDBOLy@No@j@{Ad@kAV}AB{@?oAC_AEu@O}BC[GKMsBK}AGiAKiBm@cIq@cOIoBG_BCk@Cq@Aw@?mD?WB_CL}EFwBCcACm@Ic@Kg@Ky@I]Ok@Qe@Wq@O]KS")
-print "\n\n\n"
+print("\n\n\n")
 convertGooglePolyLine("}nmrHekip@?A@A?A@A?A?A@A?A?A?A?A?A@C?A?A?AAA?A?A?A?AAA?AAC?AAA?AAA?AA??AA?AAAAA?AAA?A?A?A?A@A?A??@A?A@?@A??@A@A@?@A@?@A@?@?@?@A@?@?@?B?@?@?@?@?@?@@@?@?@?@@??@WVqB`BIH{@z@i@h@c@j@MTSZOXMXQd@O^M`@Mh@IZG\\I^G\\G\\G^G^Mp@SlAG\\Ox@I\\K^K^Ur@Yr@[p@]n@U^KPKPQX}BxDeBrCOTGHIHGHIFGFSNIFGFIDwBjAaCpAOH{C`BwBjAOFOFMDM@U@OA[Gg@G[EKCEASEOIGEEGGKMU")
-print "\n\n\n"
+print("\n\n\n")
 
 connectToDevice()

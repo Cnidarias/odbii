@@ -1,4 +1,4 @@
-import Queue
+import queue
 import threading
 from multiprocessing.connection import Client
 

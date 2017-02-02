@@ -27,6 +27,7 @@ class GUI(qt.QWidget):
 
         self.isDebug = True
         self.isFullScreenDebug = False
+        self.loginToSpotify = False
 
         self.task = kw1281Audi.kw1281(data)
         self.task.daemon = True
@@ -41,7 +42,8 @@ class GUI(qt.QWidget):
 
 
         self.spotify = spotifyPython.Commander(False)
-        self.spotify.do_relogin()
+        if self.loginToSpotify:
+            self.spotify.do_relogin()
 
         self.RPMplot = None
         self.RPMData = []
@@ -112,13 +114,14 @@ class GUI(qt.QWidget):
         self.spotifyLayout = qt.QFormLayout()
         fontUnit = qt.QFont("Arial", 20, qt.QFont.Bold)
 
-        for ele in playLists:
-            widget = ExtendedQLabel(self.spotifyContainer)
-            widget.setText(ele[1])
-            widget.setData(ele[0])
-            widget.setFont(fontUnit)
-            self.connect(widget, SIGNAL('clicked(QObject)'), self.playListClicked)
-            self.spotifyLayout.addRow(widget)
+        if playLists:
+            for ele in playLists:
+                widget = ExtendedQLabel(self.spotifyContainer)
+                widget.setText(ele[1])
+                widget.setData(ele[0])
+                widget.setFont(fontUnit)
+                self.connect(widget, SIGNAL('clicked(QObject)'), self.playListClicked)
+                self.spotifyLayout.addRow(widget)
             
         self.spotifyContainer.setLayout(self.spotifyLayout)
         scroll = qt.QScrollArea()
@@ -220,15 +223,16 @@ class GUI(qt.QWidget):
 
         fontUnit = qt.QFont("Arial", 20, qt.QFont.Bold)
 
-        for ele in playLists:
-            widget = ExtendedQLabel(self.spotifyContainer)
-            widget.setText(ele[1])
-            widget.setData(ele[0])
-            widget.setFont(fontUnit)
-            self.connect(widget, SIGNAL('clicked(QObject)'), self.playListClicked)
-            self.spotifyLayout.addRow(widget)
+        if playLists:
+            for ele in playLists:
+                widget = ExtendedQLabel(self.spotifyContainer)
+                widget.setText(ele[1])
+                widget.setData(ele[0])
+                widget.setFont(fontUnit)
+                self.connect(widget, SIGNAL('clicked(QObject)'), self.playListClicked)
+                self.spotifyLayout.addRow(widget)
 
-        self.showSpotifyPlayList()
+            self.showSpotifyPlayList()
         
 
 
