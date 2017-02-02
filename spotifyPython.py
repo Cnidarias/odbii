@@ -17,7 +17,7 @@ class Commander(cmd.Cmd):
     logger = logging.getLogger('shell.commander')
 
     
-    def __init__(self, shouldCommander ):
+    def __init__(self, shouldCommander):
         if shouldCommander: cmd.Cmd.__init__(self)
         self.shouldReturn = False
         if not shouldCommander: self.shouldReturn = True
@@ -55,9 +55,9 @@ class Commander(cmd.Cmd):
 
     def on_end_of_track(self, session):
         self.session.player.play(False)
-        self.logger.info( "SONG ENDED" )
+        self.logger.info("SONG ENDED")
         if self.PlayList:
-            if self.currentSong < len( self.PlayList ):
+            if self.currentSong < len(self.PlayList):
                 self.play_nextSong()
 
     def precmd(self, line=""):
@@ -139,14 +139,14 @@ class Commander(cmd.Cmd):
                 self.session.remembered_user)
 
 
-    def do_get_Playlist( self, line="" ):
+    def do_get_Playlist(self, line=""):
         "Get Playlists of the currently logged in user"
         if not self.logged_in.is_set():
-            self.logger.warning( 'You must be logged in to play' )
+            self.logger.warning('You must be logged in to play')
             return
         try:
             self.session.get_published_playlists()
-            while len( self.session.playlist_container ) <= 0:
+            while len(self.session.playlist_container) <= 0:
                 self.session.process_events()
 
             returnString = []
@@ -154,11 +154,11 @@ class Commander(cmd.Cmd):
             for playlist in self.session.playlist_container:
                 plList = playlist.load()
                 self.logger.info(
-                '[%s] %s',  plList.link, plList.name )
+                '[%s] %s',  plList.link, plList.name)
                 arr = []
-                arr.append( plList.link )
-                arr.append( plList.name )
-                returnString.append( arr )
+                arr.append(plList.link)
+                arr.append(plList.name)
+                returnString.append(arr)
 
         except spotify.Error as e:
             self.logger.warning(e)
@@ -166,17 +166,17 @@ class Commander(cmd.Cmd):
         if self.shouldReturn: return returnString
     
 
-    def do_play_playlist( self, line ):
+    def do_play_playlist(self, line):
         if not self.logged_in.is_set():
-            self.logger.warning( 'You must be logged in to play' )
+            self.logger.warning('You must be logged in to play')
             return
         try:
-            playlist = self.session.get_playlist( line )
+            playlist = self.session.get_playlist(line)
             playlist.load()
-        except ( ValueError, spotify.Error ) as e:
-            self.logger.warning( e )
+        except (ValueError, spotify.Error) as e:
+            self.logger.warning(e)
         
-        self.logger.info( 'Playlist %s loaded', playlist.name )
+        self.logger.info('Playlist %s loaded', playlist.name)
         playlist.set_autolink_tracks
         
         self.PlayList = []
@@ -185,21 +185,21 @@ class Commander(cmd.Cmd):
 
         for track in playlist.tracks:
             ltrack = track.load()
-            self.logger.info( '[%s] %s - %s ', ltrack.link, ltrack.artists[0].name, ltrack.name )
-            self.PlayList.append( str( ltrack.link ))
+            self.logger.info('[%s] %s - %s ', ltrack.link, ltrack.artists[0].name, ltrack.name)
+            self.PlayList.append(str(ltrack.link))
             arr = []
-            arr.append( ltrack.link )
-            arr.append( ltrack.name )
-            arr.append( ltrack.duration )
-            arr.append( ltrack.artists[0].name )
-            returnString.append( arr )
+            arr.append(ltrack.link)
+            arr.append(ltrack.name)
+            arr.append(ltrack.duration)
+            arr.append(ltrack.artists[0].name)
+            returnString.append(arr)
 
         self.currentSong = 0
         self.play_nextSong()
         if self.shouldReturn: return returnString
 
-    def play_nextSong( self ):
-        self.do_play_uri( str( self.PlayList[self.currentSong] ) )
+    def play_nextSong(self):
+        self.do_play_uri(str(self.PlayList[self.currentSong]))
         self.currentSong += 1
 
     def do_play_uri(self, line=""):
@@ -264,19 +264,20 @@ class Commander(cmd.Cmd):
                 '[%s] %s - %s', track.link, track.artists[0].name, track.name)
 
             arr = []
-            arr.append( str( track.link ) )
-            arr.append( track.artists[0].name )
-            arr.append( track.name )
-            returnString.append( arr )
+            arr.append(str(track.link))
+            arr.append(track.artists[0].name)
+            arr.append(track.name)
+            returnString.append(arr)
 
         if self.shouldReturn: return returnString
 
-
+    
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
-    Commander( True ).cmdloop()
-    #c = Commander( False )
-    #c.do_relogin()
-    #q = c.do_search( "Imagine Dragons" )
-    #c.do_logout()
-    #print q
+    Commander(True).cmdloop()
+
+    # c = Commander(False)
+    # c.do_relogin()
+    # q = c.do_search("Imagine Dragons")
+    # c.do_logout()
+    # print q

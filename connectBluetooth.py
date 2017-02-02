@@ -9,8 +9,8 @@ def readPacket():
     global sock
     try:
         while True:
-            msg = sock.recv( 1024 )
-            msg = msg.split( "," )
+            msg = sock.recv(1024)
+            msg = msg.split(",")
 
             lat, lng = None, None
 
@@ -41,19 +41,19 @@ def connectToDevice():
     global target_addr
     while True:
         try:
-            sock = bluetooth.BluetoothSocket( bluetooth.RFCOMM )
-            sock.connect( (target_addr,port ) )
+            sock = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
+            sock.connect((target_addr,port))
             print "Connected - Now trying to read GPS data!"
             readPacket()
             break
         except bluetooth.btcommon.BluetoothError as e:
             print e
-            time.sleep( 5 )
+            time.sleep(5)
                     
 
-def convertGooglePolyLine( line ):
+def convertGooglePolyLine(line):
     index = 0
-    length = len( line )
+    length = len(line)
     lat, lng = 0, 0 
 
     while index < length:
@@ -62,16 +62,16 @@ def convertGooglePolyLine( line ):
         result = 0
 
         while True:
-            b = ord( line[index] ) - 63
+            b = ord(line[index]) - 63
             index += 1
 
-            result |= ( b & 0x1f ) << shift;
+            result |= (b & 0x1f) << shift;
             shift += 5
 
             if b < 0x20: break
 
         if result & 1 != 0:
-            lat += ~( result >> 1 )
+            lat += ~(result >> 1)
         else:
             lat += result >> 1
 
@@ -79,21 +79,21 @@ def convertGooglePolyLine( line ):
         result = 0
 
         while True:
-            b = ord( line[index] ) - 63
+            b = ord(line[index]) - 63
             index += 1
 
-            result |= ( b & 0x1f ) << shift;
+            result |= (b & 0x1f) << shift;
             shift += 5
 
             if b < 0x20: break
 
         if result & 1 != 0:
-            lng += ~( result >> 1 )
+            lng += ~(result >> 1)
         else:
             lng += result >> 1
 
 
-        print "{0:.5f}".format( lat / 100000.0 ), "{0:.5f}".format( lng / 100000.0 )
+        print "{0:.5f}".format(lat / 100000.0), "{0:.5f}".format(lng / 100000.0)
 
 
 
@@ -110,18 +110,18 @@ destination = "Koblenz"
 
 
 
-r = requests.get( "https://maps.googleapis.com/maps/api/directions/json?origin=50+22.6013N+008+03.7237E&destination="+ destination+"&key=" +key)
+r = requests.get("https://maps.googleapis.com/maps/api/directions/json?origin=50+22.6013N+008+03.7237E&destination="+ destination+"&key=" +key)
 
 
-obj = json.loads( r.text )
-pprint( obj )
+obj = json.loads(r.text)
+pprint(obj)
 
 print "\n\n\n"
-convertGooglePolyLine( "_p~iF~ps|U_ulLnnqC_mqNvxq`@" )
+convertGooglePolyLine("_p~iF~ps|U_ulLnnqC_mqNvxq`@")
 print "\n\n\n"
-convertGooglePolyLine( "yimrHg}ep@JDBOLy@No@j@{Ad@kAV}AB{@?oAC_AEu@O}BC[GKMsBK}AGiAKiBm@cIq@cOIoBG_BCk@Cq@Aw@?mD?WB_CL}EFwBCcACm@Ic@Kg@Ky@I]Ok@Qe@Wq@O]KS" )
+convertGooglePolyLine("yimrHg}ep@JDBOLy@No@j@{Ad@kAV}AB{@?oAC_AEu@O}BC[GKMsBK}AGiAKiBm@cIq@cOIoBG_BCk@Cq@Aw@?mD?WB_CL}EFwBCcACm@Ic@Kg@Ky@I]Ok@Qe@Wq@O]KS")
 print "\n\n\n"
-convertGooglePolyLine( "}nmrHekip@?A@A?A@A?A?A@A?A?A?A?A?A@C?A?A?AAA?A?A?A?AAA?AAC?AAA?AAA?AA??AA?AAAAA?AAA?A?A?A?A@A?A??@A?A@?@A??@A@A@?@A@?@A@?@?@?@A@?@?@?B?@?@?@?@?@?@@@?@?@?@@??@WVqB`BIH{@z@i@h@c@j@MTSZOXMXQd@O^M`@Mh@IZG\\I^G\\G\\G^G^Mp@SlAG\\Ox@I\\K^K^Ur@Yr@[p@]n@U^KPKPQX}BxDeBrCOTGHIHGHIFGFSNIFGFIDwBjAaCpAOH{C`BwBjAOFOFMDM@U@OA[Gg@G[EKCEASEOIGEEGGKMU" )
+convertGooglePolyLine("}nmrHekip@?A@A?A@A?A?A@A?A?A?A?A?A@C?A?A?AAA?A?A?A?AAA?AAC?AAA?AAA?AA??AA?AAAAA?AAA?A?A?A?A@A?A??@A?A@?@A??@A@A@?@A@?@A@?@?@?@A@?@?@?B?@?@?@?@?@?@@@?@?@?@@??@WVqB`BIH{@z@i@h@c@j@MTSZOXMXQd@O^M`@Mh@IZG\\I^G\\G\\G^G^Mp@SlAG\\Ox@I\\K^K^Ur@Yr@[p@]n@U^KPKPQX}BxDeBrCOTGHIHGHIFGFSNIFGFIDwBjAaCpAOH{C`BwBjAOFOFMDM@U@OA[Gg@G[EKCEASEOIGEEGGKMU")
 print "\n\n\n"
 
 connectToDevice()
