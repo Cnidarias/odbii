@@ -17,9 +17,6 @@ class Calculator:
         vcmd = master.register(self.validate) # we have to wrap the command
         self.entry = Entry(master, validate="key", validatecommand=(vcmd, '%P'))
 
-        self.add_button = Button(master, text="+", command=lambda: self.update("add"))
-        self.subtract_button = Button(master, text="-", command=lambda: self.update("subtract"))
-        self.reset_button = Button(master, text="Reset", command=lambda: self.update("reset"))
 
         # LAYOUT
 
