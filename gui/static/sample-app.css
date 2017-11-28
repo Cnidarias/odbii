@@ -1,0 +1,19 @@
+
+html, body {
+    min-height:100%;
+    height: 100%;
+}
+
+#html_output, #main {
+    min-width: 100%;
+    width:100%;
+}
+
+.fill-height_special {
+    min-height:80%;
+    height: 80%;
+}
+.fill-height{
+    min-height:100%;
+    height:100%;
+}
