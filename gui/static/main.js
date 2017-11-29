@@ -8,7 +8,7 @@ var rpmChart;
 var speedChart;
 
 var count = 0;
-var maxArraySize = 200;
+var maxArraySize = 30;
 var speedMax = 350;
 var scaleMax = 10000;
 
@@ -17,8 +17,8 @@ var rpmData = {
     labels : ["0"],
     datasets : [
         {
-            borderColor: 'rgba(20, 220, 20, 0.1)',
-            backgroundColor: 'rgba(20, 220, 20, 0.5)',
+            borderColor: 'rgba(220, 0, 0, 0.4)',
+            backgroundColor: 'rgba(20, 220, 20, 0.3)',
             data : [0]
         }
     ]
@@ -28,8 +28,8 @@ var speedData = {
     labels : ["0"],
     datasets : [
         {
-            borderColor: 'rgba(220, 20, 20, 0.1)',
-            backgroundColor: 'rgba(220, 20, 20, 0.5)',
+            borderColor: 'rgba(220, 0, 0, 0.4)',
+            backgroundColor: 'rgba(20, 220, 20, 0.3)',
             data : [0]
         }
     ]

@@ -34,7 +34,7 @@ def fetch_new_values(socketio, data):
     while True:
         generate_data(data)
         socketio.emit('car_data', data)
-        sleep(1.0)
+        sleep(0.5)
 
 
 executor = ThreadPoolExecutor(1)

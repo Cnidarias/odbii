@@ -351,7 +351,7 @@ jQuery.extend( {
 		}
 	},
 
-	// Convert dashed to camelCase; used by the css and data modules
+	// Convert dashed to camelCase; used by the css and rpmData modules
 	// Microsoft forgot to hump their vendor prefix (#9572)
 	camelCase: function( string ) {
 		return string.replace( rmsPrefix, "ms-" ).replace( rdashAlpha, fcamelCase );
@@ -611,7 +611,7 @@ var i,
 	matches,
 	contains,
 
-	// Instance-specific data
+	// Instance-specific rpmData
 	expando = "sizzle" + 1 * new Date(),
 	preferredDoc = window.document,
 	dirruns = 0,
@@ -905,7 +905,7 @@ function Sizzle( selector, context, results, seed ) {
 
 /**
  * Create key-value caches of limited size
- * @returns {function(string, object)} Returns the Object data after storing it on itself with
+ * @returns {function(string, object)} Returns the Object rpmData after storing it on itself with
  *	property name the (space-suffixed) string and (if the cache is larger than Expr.cacheLength)
  *	deleting the oldest entry
  */
@@ -1752,7 +1752,7 @@ Expr = Sizzle.selectors = {
 
 						start = [ forward ? parent.firstChild : parent.lastChild ];
 
-						// non-xml :nth-child(...) stores cache data on `parent`
+						// non-xml :nth-child(...) stores cache rpmData on `parent`
 						if ( forward && useCache ) {
 
 							// Seek `elem` from a previously-cached index
@@ -2191,7 +2191,7 @@ function addCombinator( matcher, combinator, base ) {
 			var oldCache, uniqueCache, outerCache,
 				newCache = [ dirruns, doneName ];
 
-			// We can't set arbitrary data on XML nodes, so they don't benefit from combinator caching
+			// We can't set arbitrary rpmData on XML nodes, so they don't benefit from combinator caching
 			if ( xml ) {
 				while ( (elem = elem[ dir ]) ) {
 					if ( elem.nodeType === 1 || checkNonElements ) {
@@ -3209,7 +3209,7 @@ jQuery.Callbacks = function( options ) {
 		// Actual callback list
 		list = [],
 
-		// Queue of execution data for repeatable lists
+		// Queue of execution rpmData for repeatable lists
 		queue = [],
 
 		// Index of currently firing callback (modified by add/remove as needed)
@@ -3232,14 +3232,14 @@ jQuery.Callbacks = function( options ) {
 					if ( list[ firingIndex ].apply( memory[ 0 ], memory[ 1 ] ) === false &&
 						options.stopOnFalse ) {
 
-						// Jump to end and forget the data so .add doesn't re-fire
+						// Jump to end and forget the rpmData so .add doesn't re-fire
 						firingIndex = list.length;
 						memory = false;
 					}
 				}
 			}
 
-			// Forget the data if we're done with it
+			// Forget the rpmData if we're done with it
 			if ( !options.memory ) {
 				memory = false;
 			}
@@ -3249,7 +3249,7 @@ jQuery.Callbacks = function( options ) {
 			// Clean up if we're done firing for good
 			if ( locked ) {
 
-				// Keep an empty list if we have data for future add calls
+				// Keep an empty list if we have rpmData for future add calls
 				if ( memory ) {
 					list = [];
 
@@ -3762,11 +3762,11 @@ var acceptData = function( elem ) {
 	var noData = jQuery.noData[ ( elem.nodeName + " " ).toLowerCase() ],
 		nodeType = +elem.nodeType || 1;
 
-	// Do not set data on non-element DOM nodes because it will not be cleared (#8335).
+	// Do not set rpmData on non-element DOM nodes because it will not be cleared (#8335).
 	return nodeType !== 1 && nodeType !== 9 ?
 		false :
 
-		// Nodes accept data unless otherwise specified; rejection can be conditional
+		// Nodes accept rpmData unless otherwise specified; rejection can be conditional
 		!noData || noData !== true && elem.getAttribute( "classid" ) === noData;
 };
 
@@ -3779,10 +3779,10 @@ var rbrace = /^(?:\{[\w\W]*\}|\[[\w\W]*\])$/,
 function dataAttr( elem, key, data ) {
 
 	// If nothing was found internally, try to fetch any
-	// data from the HTML5 data-* attribute
+	// rpmData from the HTML5 rpmData-* attribute
 	if ( data === undefined && elem.nodeType === 1 ) {
 
-		var name = "data-" + key.replace( rmultiDash, "-$1" ).toLowerCase();
+		var name = "rpmData-" + key.replace( rmultiDash, "-$1" ).toLowerCase();
 
 		data = elem.getAttribute( name );
 
@@ -3798,7 +3798,7 @@ function dataAttr( elem, key, data ) {
 					data;
 			} catch ( e ) {}
 
-			// Make sure we set the data so it isn't changed later
+			// Make sure we set the rpmData so it isn't changed later
 			jQuery.data( elem, key, data );
 
 		} else {
@@ -3814,7 +3814,7 @@ function isEmptyDataObject( obj ) {
 	var name;
 	for ( name in obj ) {
 
-		// if the public data object is empty, the private is still empty
+		// if the public rpmData object is empty, the private is still empty
 		if ( name === "data" && jQuery.isEmptyObject( obj[ name ] ) ) {
 			continue;
 		}
@@ -3838,7 +3838,7 @@ function internalData( elem, name, data, pvt /* Internal Use Only */ ) {
 		// can't GC object references properly across the DOM-JS boundary
 		isNode = elem.nodeType,
 
-		// Only DOM nodes need the global jQuery cache; JS object data is
+		// Only DOM nodes need the global jQuery cache; JS object rpmData is
 		// attached directly to the object so GC can occur automatically
 		cache = isNode ? jQuery.cache : elem,
 
@@ -3846,8 +3846,8 @@ function internalData( elem, name, data, pvt /* Internal Use Only */ ) {
 		// the code to shortcut on the same path as a DOM node with no cache
 		id = isNode ? elem[ internalKey ] : elem[ internalKey ] && internalKey;
 
-	// Avoid doing any more work than we need to when trying to get data on an
-	// object that has no data at all
+	// Avoid doing any more work than we need to when trying to get rpmData on an
+	// object that has no rpmData at all
 	if ( ( !id || !cache[ id ] || ( !pvt && !cache[ id ].data ) ) &&
 		data === undefined && typeof name === "string" ) {
 		return;
@@ -3855,7 +3855,7 @@ function internalData( elem, name, data, pvt /* Internal Use Only */ ) {
 
 	if ( !id ) {
 
-		// Only DOM nodes need a new unique ID for each element since their data
+		// Only DOM nodes need a new unique ID for each element since their rpmData
 		// ends up in the global cache
 		if ( isNode ) {
 			id = elem[ internalKey ] = deletedIds.pop() || jQuery.guid++;
@@ -3871,7 +3871,7 @@ function internalData( elem, name, data, pvt /* Internal Use Only */ ) {
 		cache[ id ] = isNode ? {} : { toJSON: jQuery.noop };
 	}
 
-	// An object can be passed to jQuery.data instead of a key/value pair; this gets
+	// An object can be passed to jQuery.rpmData instead of a key/value pair; this gets
 	// shallow copied over onto the existing cache
 	if ( typeof name === "object" || typeof name === "function" ) {
 		if ( pvt ) {
@@ -3883,9 +3883,9 @@ function internalData( elem, name, data, pvt /* Internal Use Only */ ) {
 
 	thisCache = cache[ id ];
 
-	// jQuery data() is stored in a separate object inside the object's internal data
-	// cache in order to avoid key collisions between internal data and user-defined
-	// data.
+	// jQuery rpmData() is stored in a separate object inside the object's internal rpmData
+	// cache in order to avoid key collisions between internal rpmData and user-defined
+	// rpmData.
 	if ( !pvt ) {
 		if ( !thisCache.data ) {
 			thisCache.data = {};
@@ -3898,14 +3898,14 @@ function internalData( elem, name, data, pvt /* Internal Use Only */ ) {
 		thisCache[ jQuery.camelCase( name ) ] = data;
 	}
 
-	// Check for both converted-to-camel and non-converted data property names
-	// If a data property was specified
+	// Check for both converted-to-camel and non-converted rpmData property names
+	// If a rpmData property was specified
 	if ( typeof name === "string" ) {
 
-		// First Try to find as-is property data
+		// First Try to find as-is property rpmData
 		ret = thisCache[ name ];
 
-		// Test for null|undefined property data
+		// Test for null|undefined property rpmData
 		if ( ret == null ) {
 
 			// Try to find the camelCased property
@@ -3926,7 +3926,7 @@ function internalRemoveData( elem, name, pvt ) {
 	var thisCache, i,
 		isNode = elem.nodeType,
 
-		// See jQuery.data for more information
+		// See jQuery.rpmData for more information
 		cache = isNode ? jQuery.cache : elem,
 		id = isNode ? elem[ jQuery.expando ] : jQuery.expando;
 
@@ -3942,7 +3942,7 @@ function internalRemoveData( elem, name, pvt ) {
 
 		if ( thisCache ) {
 
-			// Support array or space separated string names for data keys
+			// Support array or space separated string names for rpmData keys
 			if ( !jQuery.isArray( name ) ) {
 
 				// try the string as a key before any manipulation
@@ -3961,7 +3961,7 @@ function internalRemoveData( elem, name, pvt ) {
 			} else {
 
 				// If "name" is an array of keys...
-				// When data is initially created, via ("key", "val") signature,
+				// When rpmData is initially created, via ("key", "val") signature,
 				// keys will be converted to camelCase.
 				// Since there is no way to tell _how_ a key was added, remove
 				// both plain key and camelCase key. #12786
@@ -3974,7 +3974,7 @@ function internalRemoveData( elem, name, pvt ) {
 				delete thisCache[ name[ i ] ];
 			}
 
-			// If there is no data left in the cache, we want to continue
+			// If there is no rpmData left in the cache, we want to continue
 			// and let the cache object itself get destroyed
 			if ( pvt ? !isEmptyDataObject( thisCache ) : !jQuery.isEmptyObject( thisCache ) ) {
 				return;
@@ -3982,11 +3982,11 @@ function internalRemoveData( elem, name, pvt ) {
 		}
 	}
 
-	// See jQuery.data for more information
+	// See jQuery.rpmData for more information
 	if ( !pvt ) {
 		delete cache[ id ].data;
 
-		// Don't destroy the parent cache unless the internal data object
+		// Don't destroy the parent cache unless the internal rpmData object
 		// had been the only thing left in it
 		if ( !isEmptyDataObject( cache[ id ] ) ) {
 			return;
@@ -4051,7 +4051,7 @@ jQuery.fn.extend( {
 			elem = this[ 0 ],
 			attrs = elem && elem.attributes;
 
-		// Special expections of .data basically thwart jQuery.access,
+		// Special expections of .rpmData basically thwart jQuery.access,
 		// so implement the relevant behavior ourselves
 
 		// Gets all values
@@ -4067,7 +4067,7 @@ jQuery.fn.extend( {
 						// The attrs elements can be null (#14894)
 						if ( attrs[ i ] ) {
 							name = attrs[ i ].name;
-							if ( name.indexOf( "data-" ) === 0 ) {
+							if ( name.indexOf( "rpmData-" ) === 0 ) {
 								name = jQuery.camelCase( name.slice( 5 ) );
 								dataAttr( elem, name, data[ name ] );
 							}
@@ -4095,7 +4095,7 @@ jQuery.fn.extend( {
 			} ) :
 
 			// Gets one value
-			// Try to fetch any internally stored data first
+			// Try to fetch any internally stored rpmData first
 			elem ? dataAttr( elem, key, jQuery.data( elem, key ) ) : undefined;
 	},
 
@@ -4435,7 +4435,7 @@ var rscriptType = ( /^$|\/(?:java|ecma)script/i );
 
 var rleadingWhitespace = ( /^\s+/ );
 
-var nodeNames = "abbr|article|aside|audio|bdi|canvas|data|datalist|" +
+var nodeNames = "abbr|article|aside|audio|bdi|canvas|rpmData|datalist|" +
 		"details|dialog|figcaption|figure|footer|header|hgroup|main|" +
 		"mark|meter|nav|output|picture|progress|section|summary|template|time|video";
 
@@ -4778,10 +4778,10 @@ function on( elem, types, selector, data, fn, one ) {
 	// Types can be a map of types/handlers
 	if ( typeof types === "object" ) {
 
-		// ( types-Object, selector, data )
+		// ( types-Object, selector, rpmData )
 		if ( typeof selector !== "string" ) {
 
-			// ( types-Object, data )
+			// ( types-Object, rpmData )
 			data = data || selector;
 			selector = undefined;
 		}
@@ -4804,7 +4804,7 @@ function on( elem, types, selector, data, fn, one ) {
 			data = undefined;
 		} else {
 
-			// ( types, data, fn )
+			// ( types, rpmData, fn )
 			fn = data;
 			data = selector;
 			selector = undefined;
@@ -4852,7 +4852,7 @@ jQuery.event = {
 			return;
 		}
 
-		// Caller can pass in an object of custom data in lieu of the handler
+		// Caller can pass in an object of custom rpmData in lieu of the handler
 		if ( handler.handler ) {
 			handleObjIn = handler;
 			handler = handleObjIn.handler;
@@ -5084,7 +5084,7 @@ jQuery.event = {
 			event.target = elem;
 		}
 
-		// Clone any incoming data and prepend the event, creating the handler arg list
+		// Clone any incoming rpmData and prepend the event, creating the handler arg list
 		data = data == null ?
 			[ event ] :
 			jQuery.makeArray( data, [ event ] );
@@ -5932,7 +5932,7 @@ function cloneCopyEvent( src, dest ) {
 		}
 	}
 
-	// make the cloned public data object a copy from the original
+	// make the cloned public rpmData object a copy from the original
 	if ( curData.data ) {
 		curData.data = jQuery.extend( {}, curData.data );
 	}
@@ -5956,7 +5956,7 @@ function fixCloneNodeIssues( src, dest ) {
 			jQuery.removeEvent( dest, e, data.handle );
 		}
 
-		// Event data gets referenced instead of copied if the expando gets copied too
+		// Event rpmData gets referenced instead of copied if the expando gets copied too
 		dest.removeAttribute( jQuery.expando );
 	}
 
@@ -6444,7 +6444,7 @@ function actualDisplay( name, doc ) {
 
 		display = jQuery.css( elem[ 0 ], "display" );
 
-	// We don't have any data stored on the element,
+	// We don't have any rpmData stored on the element,
 	// so use "detach" method as fast way to get rid of the element
 	elem.detach();
 
@@ -8000,7 +8000,7 @@ jQuery.fn.extend( {
 				timers = jQuery.timers,
 				length = queue ? queue.length : 0;
 
-			// enable finishing flag on private data
+			// enable finishing flag on private rpmData
 			data.finish = true;
 
 			// empty the queue first
@@ -9088,7 +9088,7 @@ var
 	 * 1) They are useful to introduce custom dataTypes (see ajax/jsonp.js for an example)
 	 * 2) These are called:
 	 *    - BEFORE asking for a transport
-	 *    - AFTER param serialization (s.data is a string if s.processData is true)
+	 *    - AFTER param serialization (s.rpmData is a string if s.processData is true)
 	 * 3) key is the dataType
 	 * 4) the catchall symbol "*" can be used
 	 * 5) execution will start with transport dataType and THEN continue down to "*" if needed
@@ -9367,7 +9367,7 @@ jQuery.extend( {
 		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
 		/*
 		timeout: 0,
-		data: null,
+		rpmData: null,
 		dataType: null,
 		username: null,
 		password: null,
@@ -9607,7 +9607,7 @@ jQuery.extend( {
 			);
 		}
 
-		// Convert data if not already a string
+		// Convert rpmData if not already a string
 		if ( s.data && s.processData && typeof s.data !== "string" ) {
 			s.data = jQuery.param( s.data, s.traditional );
 		}
@@ -9642,11 +9642,11 @@ jQuery.extend( {
 		// More options handling for requests with no content
 		if ( !s.hasContent ) {
 
-			// If data is available, append data to url
+			// If rpmData is available, append rpmData to url
 			if ( s.data ) {
 				cacheURL = ( s.url += ( rquery.test( cacheURL ) ? "&" : "?" ) + s.data );
 
-				// #9682: remove data so that it's not used in an eventual retry
+				// #9682: remove rpmData so that it's not used in an eventual retry
 				delete s.data;
 			}
 
@@ -9672,7 +9672,7 @@ jQuery.extend( {
 			}
 		}
 
-		// Set the correct header, if data is being sent
+		// Set the correct header, if rpmData is being sent
 		if ( s.data && s.hasContent && s.contentType !== false || options.contentType ) {
 			jqXHR.setRequestHeader( "Content-Type", s.contentType );
 		}
@@ -9780,7 +9780,7 @@ jQuery.extend( {
 			// Determine if successful
 			isSuccess = status >= 200 && status < 300 || status === 304;
 
-			// Get response data
+			// Get response rpmData
 			if ( responses ) {
 				response = ajaxHandleResponses( s, jqXHR, responses );
 			}
@@ -9811,7 +9811,7 @@ jQuery.extend( {
 				} else if ( status === 304 ) {
 					statusText = "notmodified";
 
-				// If we have data, let's convert it
+				// If we have rpmData, let's convert it
 				} else {
 					statusText = response.state;
 					success = response.data;
@@ -9831,7 +9831,7 @@ jQuery.extend( {
 				}
 			}
 
-			// Set data for the fake xhr object
+			// Set rpmData for the fake xhr object
 			jqXHR.status = status;
 			jqXHR.statusText = ( nativeStatusText || statusText ) + "";
 
@@ -9879,7 +9879,7 @@ jQuery.extend( {
 jQuery.each( [ "get", "post" ], function( i, method ) {
 	jQuery[ method ] = function( url, data, callback, type ) {
 
-		// shift arguments if data argument was omitted
+		// shift arguments if rpmData argument was omitted
 		if ( jQuery.isFunction( data ) ) {
 			type = type || callback;
 			callback = data;
@@ -10275,7 +10275,7 @@ if ( xhrSupported ) {
 								status = xhr.status;
 
 								// Support: IE<10
-								// Accessing binary-data responseText throws an exception
+								// Accessing binary-rpmData responseText throws an exception
 								// (#11426)
 								if ( typeof xhr.responseText === "string" ) {
 									responses.text = xhr.responseText;
@@ -10293,8 +10293,8 @@ if ( xhrSupported ) {
 
 								// Filter status for non standard behaviors
 
-								// If the request is local and we have data: assume a success
-								// (success with no data won't get notified, that's the best we
+								// If the request is local and we have rpmData: assume a success
+								// (success with no rpmData won't get notified, that's the best we
 								// can do given current implementations)
 								if ( !status && options.isLocal && !options.crossDomain ) {
 									status = responses.text ? 200 : 404;
@@ -10474,7 +10474,7 @@ jQuery.ajaxPrefilter( "json jsonp", function( s, originalSettings, jqXHR ) {
 				rjsonp.test( s.data ) && "data"
 		);
 
-	// Handle iff the expected data type is "jsonp" or we have a parameter to set
+	// Handle iff the expected rpmData type is "jsonp" or we have a parameter to set
 	if ( jsonProp || s.dataTypes[ 0 ] === "jsonp" ) {
 
 		// Get callback name, remembering preexisting value associated with it
@@ -10482,14 +10482,14 @@ jQuery.ajaxPrefilter( "json jsonp", function( s, originalSettings, jqXHR ) {
 			s.jsonpCallback() :
 			s.jsonpCallback;
 
-		// Insert callback into url or form data
+		// Insert callback into url or form rpmData
 		if ( jsonProp ) {
 			s[ jsonProp ] = s[ jsonProp ].replace( rjsonp, "$1" + callbackName );
 		} else if ( s.jsonp !== false ) {
 			s.url += ( rquery.test( s.url ) ? "&" : "?" ) + s.jsonp + "=" + callbackName;
 		}
 
-		// Use data converter to retrieve json after script execution
+		// Use rpmData converter to retrieve json after script execution
 		s.converters[ "script json" ] = function() {
 			if ( !responseContainer ) {
 				jQuery.error( callbackName + " was not called" );
@@ -10544,7 +10544,7 @@ jQuery.ajaxPrefilter( "json jsonp", function( s, originalSettings, jqXHR ) {
 
 
 
-// data: string of html
+// rpmData: string of html
 // context (optional): If specified, the fragment will be created in this context,
 // defaults to document
 // keepScripts (optional): If true, will include scripts passed in the html string
@@ -10633,7 +10633,7 @@ jQuery.fn.load = function( url, params, callback ) {
 				// Otherwise use the full result
 				responseText );
 
-		// If the request succeeds, this function gets "data", "status", "jqXHR"
+		// If the request succeeds, this function gets "rpmData", "status", "jqXHR"
 		// but they are ignored because response was set above.
 		// If it fails, this function gets "jqXHR", "status", "error"
 		} ).always( callback && function( jqXHR, status ) {
