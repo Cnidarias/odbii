@@ -7,7 +7,7 @@ var socket = io.connect('http://' + document.domain + ':' + location.port);
 var myNewChart;
 
 var count = 0;
-var maxArraySize = 20;
+var maxArraySize = 200;
 var speedMax = 350;
 var scaleMax = 10000;
 
@@ -83,6 +83,8 @@ var updateChart = function(rpm, speed) {
 
 $(document).ready(function(){
     //Get the context of the canvas element we want to select
+    $("#myChart").height($(window).height());
+    $("#myChart").width($(window).width());
     var ctx = document.getElementById("myChart").getContext("2d");
     myNewChart = new Chart(ctx, {type: 'line', data: data, options: options});
 });
