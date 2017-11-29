@@ -35,12 +35,13 @@ def fetch_new_values(socketio, data):
         generate_data(data)
         socketio.emit('car_data', data)
         print(data)
-        sleep(1.5)
+        sleep(0.5)
 
 
 executor = ThreadPoolExecutor(1)
 data = dict()
-data["d"] = 0
+data["rpm"] = 0
+data["speed"] = 0
 executor.submit(fetch_new_values, socketio, data)
 
 @app.errorhandler(401)

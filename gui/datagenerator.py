@@ -1,4 +1,5 @@
 from random import randint
 
 def generate_data(data):
-        data["d"] = randint(0, 1000)
+        data["rpm"] = randint(0, 10000)
+        data["speed"] = randint(0, 350)

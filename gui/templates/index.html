@@ -14,9 +14,10 @@ This will keep scripts at the page end and a navbar you add on later
 intact. #}
 {% block content %}
 <div class="container">
-<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"></script>
-<script type="text/javascript" src="{{url_for('static', filename='main.js')}}"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.bundle.js"></script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"></script>
+    <script type="text/javascript" src="{{url_for('static', filename='main.js')}}"></script>
 
 
 
@@ -29,6 +30,6 @@ intact. #}
     </div>
     {%- endif %}
     {%- endwith %}
-    <canvas id="myChart" width="700" height="150"></canvas>
+    <canvas id="myChart" width="800" height="480"></canvas>
 </div>
 {%- endblock %}
