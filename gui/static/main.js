@@ -8,7 +8,7 @@ var rpmChart;
 var speedChart;
 
 var count = 0;
-var maxArraySize = 30;
+var maxArraySize = 32;
 var speedMax = 350;
 var scaleMax = 10000;
 
@@ -124,14 +124,9 @@ var updateChart = function(rpm, speed) {
 
 $(document).ready(function(){
     //Get the context of the canvas element we want to select
-    $("#rpmChart").height($(window).height()/2);
-    $("#rpmChart").width($(window).width());
     var ctx = document.getElementById("rpmChart").getContext("2d");
     rpmChart = new Chart(ctx, {type: 'line', data: rpmData, options: options});
 
-    $("#speedChart").height($(window).height()/2);
-    $("#speedChart").css('top', $(window).height/2);
-    $("#speedChart").width($(window).width());
 
     var ctx = document.getElementById("speedChart").getContext("2d");
     speedChart = new Chart(ctx, {type: 'line', data: speedData, options: options2});
