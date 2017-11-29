@@ -47,8 +47,10 @@ var options = {
         yAxes: [{
             display:false,
             ticks: {
-                beginAtZero: true,
-                max: scaleMax
+                beginAtZero: false,
+                max: 0,
+                min: -scaleMax
+
             }
         }],
         xAxes: [{
@@ -95,7 +97,7 @@ socket.on('connect', function() {
 });
 
 socket.on('car_data', function (data) {
-    updateChart(data["rpm"], data["speed"]);
+    updateChart(-data["rpm"], data["speed"]);
 });
 
 var updateChart = function(rpm, speed) {
