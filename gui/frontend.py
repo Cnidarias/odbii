@@ -10,17 +10,17 @@ from datagenerator import generate_data
 def fetch_new_values(socketio, data):
     while True:
         generate_data(data)
-        socketio.emit('car_data', data)
+        socketio.emit("car_data", data)
         sleep(0.5)
 
-executor = ThreadPoolExecutor(1)
 
+executor = ThreadPoolExecutor(1)
 
 
 class construct_frontend_blueprint:
     def __init__(self, socketio):
         self.socketio = socketio
-        self.frontend = Blueprint('frontend', __name__)
+        self.frontend = Blueprint("frontend", __name__)
 
         self.data = dict()
         self.data["d"] = 0
@@ -28,21 +28,21 @@ class construct_frontend_blueprint:
 
         @self.frontend.errorhandler(401)
         def custom_401(error):
-            return render_template('unauthorized.html', error=error)
+            return render_template("unauthorized.html", error=error)
 
         # Our index-page just shows a quick explanation. Check out the template
         # "templates/index.html" documentation for more details.
-        @self.frontend.route('/')
+        @self.frontend.route("/")
         def index(self):
-            return render_template('index.html')
+            return render_template("index.html")
 
-        @self.socketio.on('message')
+        @self.socketio.on("message")
         def handle_message(message):
-            print('message')
+            print("message")
 
-        @self.socketio.on('my event')
+        @self.socketio.on("my event")
         def handle_my_custom_event(json):
-            print('received json: ' + str(json))
+            print("received json: " + str(json))
 
     def get_frontend(self):
         return self.frontend

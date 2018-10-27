@@ -8,7 +8,7 @@ var rpmChart;
 var speedChart;
 
 var count = 0;
-var maxArraySize = 32;
+var maxArraySize = 50;
 var speedMax = 350;
 var scaleMax = 10000;
 

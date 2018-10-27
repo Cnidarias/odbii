@@ -25,15 +25,17 @@ def create_app(configfile=None):
     app = Flask(__name__)
     Bootstrap(app)
     socketio = SocketIO(app)
-    app.config['BOOTSTRAP_SERVE_LOCAL'] = True
+    app.config["BOOTSTRAP_SERVE_LOCAL"] = True
     return app, socketio
 
+
 app, socketio = create_app()
+
 
 def fetch_new_values(socketio, data):
     while True:
         generate_data(data)
-        socketio.emit('car_data', data)
+        socketio.emit("car_data", data)
         sleep(0.5)
 
 
@@ -43,24 +45,28 @@ data["rpm"] = 0
 data["speed"] = 0
 executor.submit(fetch_new_values, socketio, data)
 
+
 @app.errorhandler(401)
 def custom_401(error):
-    return render_template('unauthorized.html', error=error)
+    return render_template("unauthorized.html", error=error)
+
 
 # Our index-page just shows a quick explanation. Check out the template
 # "templates/index.html" documentation for more details.
-@app.route('/')
+@app.route("/")
 def index():
-    return render_template('index.html')
+    return render_template("index.html")
 
-@socketio.on('message')
+
+@socketio.on("message")
 def handle_message(message):
-    print('message')
+    print("message")
 
-@socketio.on('my event')
+
+@socketio.on("my event")
 def handle_my_custom_event(json):
-    print('received json: ' + str(json))
+    print("received json: " + str(json))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     socketio.run(app, host="0.0.0.0", port=5000, debug=True)
